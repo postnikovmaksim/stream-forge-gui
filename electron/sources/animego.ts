@@ -6,6 +6,7 @@ import type {
 } from '../../shared/animeTypes'
 import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
 import { fetchJson, fetchText } from './httpClient'
+import { extractKodikVideos, isKodikUrl } from './players/kodik'
 
 // animego.me — агрегатор: сам не хранит видео, а собирает ссылки на сторонние
 // встраиваемые плееры (Kodik, AniBoom, свой cdn-iframe) по каждой озвучке.
@@ -22,12 +23,14 @@ import { fetchJson, fetchText } from './httpClient'
 //                                                   (там же лежат iframe-ссылки)
 const DEFAULT_BASE_URL = 'https://animego.me'
 
-const VIDEO_EXTRACTION_NOT_IMPLEMENTED =
-  'Для AnimeGo ещё не реализовано получение самого видео: плееры (Kodik, ' +
-  'AniBoom и собственный cdn-iframe сайта) отдают только iframe со встроенным ' +
-  'плеером, а не прямую ссылку на файл — для каждого нужен отдельный разбор ' +
-  '(проверено: yt-dlp тоже не умеет их скачивать напрямую). Пока реализованы ' +
-  'только поиск, список серий и список озвучек/плееров.'
+function unsupportedPlayerError(domain: string): Error {
+  return new Error(
+    `Плеер "${domain}" пока не поддержан — реализован только Kodik. ` +
+      'AniBoom и собственный cdn-iframe animego отдают iframe со встроенным ' +
+      'плеером без прямой ссылки на файл, для каждого нужен отдельный разбор ' +
+      '(проверено: yt-dlp тоже не умеет их скачивать напрямую).',
+  )
+}
 
 interface AjaxContentResponse {
   status: string
@@ -156,6 +159,22 @@ async function fetchProviders(
   return extractProviders(response.data.content)
 }
 
+async function resolveProvider(
+  animeId: string,
+  episodeIndex: number,
+  sourceIndex: number,
+  baseUrl: string,
+  timeoutMs: number,
+): Promise<ProviderRow | null> {
+  const numericId = await resolveNumericId(animeId, baseUrl, timeoutMs)
+  const rows = await fetchEpisodeRows(animeId, numericId, baseUrl, timeoutMs)
+  const row = rows[episodeIndex]
+  if (!row) return null
+
+  const providers = await fetchProviders(animeId, row.episodeId, baseUrl, timeoutMs)
+  return providers[sourceIndex] ?? null
+}
+
 export const animegoPlugin: AnimeSourcePlugin = {
   id: 'animego',
   name: 'AnimeGo',
@@ -193,11 +212,53 @@ export const animegoPlugin: AnimeSourcePlugin = {
     }))
   },
 
-  async getQualities(): Promise<VideoQualityInfo[]> {
-    throw new Error(VIDEO_EXTRACTION_NOT_IMPLEMENTED)
+  async getQualities(
+    animeId,
+    episodeIndex,
+    sourceIndex,
+    options,
+  ): Promise<VideoQualityInfo[]> {
+    const baseUrl = resolveBaseUrl(options)
+    const provider = await resolveProvider(
+      animeId,
+      episodeIndex,
+      sourceIndex,
+      baseUrl,
+      options.timeoutMs,
+    )
+    if (!provider) {
+      throw new Error(`Озвучка/плеер с индексом ${sourceIndex} не найдены`)
+    }
+    if (!isKodikUrl(provider.playerUrl)) {
+      throw unsupportedPlayerError(provider.domain)
+    }
+    return extractKodikVideos(provider.playerUrl, options.timeoutMs)
   },
 
-  async getVideoUrls(): Promise<VideoQualityInfo[][]> {
-    throw new Error(VIDEO_EXTRACTION_NOT_IMPLEMENTED)
+  async getVideoUrls(
+    animeId,
+    episodeIndexes,
+    sourceIndex,
+    options,
+  ): Promise<VideoQualityInfo[][]> {
+    const baseUrl = resolveBaseUrl(options)
+    const results: VideoQualityInfo[][] = []
+
+    for (const episodeIndex of episodeIndexes) {
+      const provider = await resolveProvider(
+        animeId,
+        episodeIndex,
+        sourceIndex,
+        baseUrl,
+        options.timeoutMs,
+      )
+      if (!provider || !isKodikUrl(provider.playerUrl)) {
+        results.push([])
+        continue
+      }
+      results.push(await extractKodikVideos(provider.playerUrl, options.timeoutMs))
+    }
+
+    return results
   },
 }
