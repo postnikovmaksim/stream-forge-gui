@@ -14,6 +14,9 @@ export const DEFAULT_SOURCES: SourceConfig[] = [
   { id: 'anilibria', name: 'AniLibria', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'ani_media', name: 'AniMedia Online', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'animego', name: 'AnimeGo', enabled: true, baseUrl: '', timeoutMs: 20000 },
+  // animelib.org за DDoS-Guard — прогрев скрытого окна быстрее, чем у astar.bz
+  // (без поллинга challenge), но всё равно требует реальной навигации.
+  { id: 'animelib', name: 'AnimeLib', enabled: true, baseUrl: '', timeoutMs: 30000 },
   { id: 'animevost', name: 'AnimeVost', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'dreamcast', name: 'DreamCast', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'sameband', name: 'SameBand', enabled: true, baseUrl: '', timeoutMs: 20000 },

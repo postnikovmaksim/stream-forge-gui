@@ -4,6 +4,7 @@ import { DEFAULT_SOURCES } from '../../shared/sourceConfig'
 import { anilibriaPlugin } from './sites/anilibria'
 import { aniMediaPlugin } from './sites/aniMedia'
 import { animegoPlugin } from './sites/animego'
+import { animelibPlugin } from './sites/animelib'
 import { astarPlugin } from './sites/astar'
 import { dreamcastPlugin } from './sites/dreamcast'
 import { shizaProjectPlugin } from './sites/shizaProject'
@@ -37,6 +38,7 @@ const implementedPlugins: Record<string, AnimeSourcePlugin> = {
   anilibria: anilibriaPlugin,
   ani_media: aniMediaPlugin,
   animego: animegoPlugin,
+  animelib: animelibPlugin,
   astar: astarPlugin,
   dreamcast: dreamcastPlugin,
   shiza_project: shizaProjectPlugin,

@@ -1,13 +1,12 @@
-import { BrowserWindow } from 'electron'
+import type { BrowserWindow } from 'electron'
+import { ensureWarmedUp } from './hiddenBrowser'
 
-// astar.bz (и потенциально другие сайты в будущем) защищён Cloudflare
-// managed challenge — обычный fetch() получает 403 с JS-загадкой, которую
-// решает только реальный браузерный движок. Обычный curl/undici этого не
-// могут в принципе, поэтому держим одно скрытое BrowserWindow на весь
-// процесс приложения: первый запрос "прогревает" его (реальная навигация +
-// ожидание, пока Cloudflare не пропустит), а все последующие используют уже
-// авторизованную сессию (cookies) через обычный in-page fetch — быстро, без
-// повторного прохождения challenge.
+// astar.bz защищён Cloudflare managed challenge — обычный fetch() получает
+// 403 с JS-загадкой, которую решает только реальный браузерный движок.
+// Обычный curl/undici этого не могут в принципе. Прогрев скрытого окна и
+// кеширование прогретой сессии между запросами — общая инфраструктура в
+// hiddenBrowser.ts (используется также animelib.org, у которого другая
+// защита — DDoS-Guard — и более простой прогрев без поллинга).
 //
 // Важно: fetch().text() в Chromium ВСЕГДА декодирует тело как UTF-8,
 // игнорируя заголовок Content-Type с другой кодировкой (это ограничение
@@ -19,30 +18,8 @@ import { BrowserWindow } from 'electron'
 // TextDecoder по ArrayBuffer, но кодировку берём из заголовка САМОГО ответа,
 // а не жёстко фиксируем одну на весь сайт.
 
-const USER_AGENT =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
-
 const CHALLENGE_POLL_INTERVAL_MS = 500
 const CHALLENGE_MAX_WAIT_MS = 20000
-
-let windowPromise: Promise<BrowserWindow> | null = null
-// Промисы, а не просто Set<string> — несколько параллельных запросов (тот же
-// источник может дёрнуться дважды почти одновременно, например из
-// React StrictMode в dev) не должны каждый по отдельности звать loadURL на
-// одном и том же окне: второй loadURL обрывает первый (ERR_ABORTED),
-// проверено вживую. Конкурентные вызовы должны ждать ОДИН и тот же прогрев.
-const warmupPromises = new Map<string, Promise<void>>()
-
-async function getWindow(): Promise<BrowserWindow> {
-  if (!windowPromise) {
-    windowPromise = (async () => {
-      const win = new BrowserWindow({ show: false, webPreferences: { sandbox: true } })
-      win.webContents.setUserAgent(USER_AGENT)
-      return win
-    })()
-  }
-  return windowPromise
-}
 
 async function waitForChallengeToClear(win: BrowserWindow): Promise<void> {
   const start = Date.now()
@@ -50,24 +27,6 @@ async function waitForChallengeToClear(win: BrowserWindow): Promise<void> {
     const title = await win.webContents.executeJavaScript('document.title').catch(() => '')
     if (!/just a moment/i.test(title) && title.length > 0) return
     await new Promise((resolve) => setTimeout(resolve, CHALLENGE_POLL_INTERVAL_MS))
-  }
-}
-
-async function ensureWarmedUp(win: BrowserWindow, origin: string): Promise<void> {
-  let promise = warmupPromises.get(origin)
-  if (!promise) {
-    promise = (async () => {
-      await win.loadURL(origin)
-      await waitForChallengeToClear(win)
-    })()
-    warmupPromises.set(origin, promise)
-  }
-  try {
-    await promise
-  } catch (error) {
-    // не кешируем неудачный прогрев — следующий вызов попробует заново
-    warmupPromises.delete(origin)
-    throw error
   }
 }
 
@@ -115,12 +74,14 @@ export async function cfFetch(
   options: CfFetchOptions,
   timeoutMs: number,
 ): Promise<CfFetchResult> {
-  const win = await getWindow()
   const origin = new URL(url).origin
 
-  await Promise.race([
-    ensureWarmedUp(win, origin),
-    new Promise((_, reject) =>
+  const win = await Promise.race([
+    ensureWarmedUp(origin, async (w) => {
+      await w.loadURL(origin)
+      await waitForChallengeToClear(w)
+    }),
+    new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error('Cloudflare: превышено время ожидания прохождения проверки')), timeoutMs),
     ),
   ])
