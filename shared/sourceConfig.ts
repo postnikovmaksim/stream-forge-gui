@@ -13,5 +13,4 @@ export const DEFAULT_SOURCES: SourceConfig[] = [
   { id: 'dreamcast', name: 'DreamCast', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'sameband', name: 'SameBand', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'yummy_anime', name: 'Yummy Anime', enabled: true, baseUrl: '', timeoutMs: 20000 },
-  { id: 'yummy_anime_org', name: 'Yummy Anime (org)', enabled: true, baseUrl: '', timeoutMs: 20000 },
 ]
