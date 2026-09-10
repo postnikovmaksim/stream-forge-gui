@@ -18,7 +18,7 @@ function App() {
     <AppShell header={{ height: 56 }} padding="md">
       <AppShell.Header>
         <Group h="100%" px="md">
-          <Title order={3}>AnimeDL</Title>
+          <Title order={3}>StreamForge</Title>
         </Group>
       </AppShell.Header>
 

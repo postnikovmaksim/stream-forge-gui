@@ -1,8 +1,8 @@
 {
-  "name": "animedl",
+  "name": "stream-forge-gui",
   "private": true,
   "version": "0.1.0",
-  "description": "Поиск и скачивание аниме с настраиваемых источников",
+  "description": "Поиск и скачивание видео с настраиваемых потоковых источников (сейчас — в основном аниме)",
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
