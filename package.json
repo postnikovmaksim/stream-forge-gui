@@ -5,13 +5,17 @@
   "description": "Поиск и скачивание видео с настраиваемых потоковых источников (сейчас — в основном аниме)",
   "type": "module",
   "main": "dist-electron/main.js",
+  "author": "postnikovmaksim",
+  "license": "GPL-3.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "package": "npm run build && electron-builder",
+    "release": "npm run build && electron-builder --publish always"
   },
   "dependencies": {
     "@mantine/core": "^9.6.1",
@@ -43,5 +47,32 @@
     "vite": "^8.2.2",
     "vite-plugin-electron": "^1.1.2",
     "vitest": "^5.0.0"
+  },
+  "build": {
+    "appId": "ru.streamforge.app",
+    "productName": "StreamForge",
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "directories": {
+      "output": "release/${version}"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "postnikovmaksim",
+      "repo": "stream-forge-gui"
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Utility"
+    }
   }
 }

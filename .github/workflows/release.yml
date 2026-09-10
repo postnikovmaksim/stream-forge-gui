@@ -1,0 +1,45 @@
+name: Release
+
+# Триггер — пуш тега вида v1.2.3. Собирает установщики под Windows/macOS/Linux
+# параллельно (matrix) и публикует их в GitHub Release для этого тега —
+# release создаётся автоматически самим electron-builder (--publish always),
+# отдельный шаг "создать релиз" не нужен.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm test
+
+      - run: npm run build
+
+      - name: Package and publish
+        run: npx electron-builder --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # На macOS-раннере нет сертификата подписи (Developer ID) — без
+          # этого electron-builder тратит время на бесплодный поиск identity.
+          # Подпись/нотаризация — отдельная задача (см. README, раздел 7).
+          CSC_IDENTITY_AUTO_DISCOVERY: false
