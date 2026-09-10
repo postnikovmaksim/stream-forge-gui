@@ -5,20 +5,31 @@ import AnimeSearch from './AnimeSearch'
 import AppSettingsForm from './AppSettingsForm'
 import DownloadsPanel from './DownloadsPanel'
 import SourcesSettings from './SourcesSettings'
+import UpdateControl from './UpdateControl'
 import { useDownloads } from './useDownloads'
+import { useUpdater } from './useUpdater'
 
 type Tab = 'search' | 'sources' | 'settings' | 'downloads'
 
 function App() {
   const [tab, setTab] = useState<Tab>('search')
   const { jobs, startDownload, killDownload } = useDownloads()
+  const updater = useUpdater()
   const runningCount = jobs.filter((job) => job.status === 'running').length
 
   return (
     <AppShell header={{ height: 56 }} padding="md">
       <AppShell.Header>
-        <Group h="100%" px="md">
-          <Title order={3}>StreamForge</Title>
+        <Group h="100%" px="md" justify="space-between">
+          <Group gap="xs">
+            <Title order={3}>StreamForge</Title>
+            {updater.version && (
+              <Badge variant="light" color="gray" size="sm">
+                v{updater.version}
+              </Badge>
+            )}
+          </Group>
+          <UpdateControl {...updater} />
         </Group>
       </AppShell.Header>
 

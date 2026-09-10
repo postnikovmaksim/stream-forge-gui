@@ -3,6 +3,7 @@ import type { DownloadEvent, DownloadJobRequest } from '../shared/download'
 import type { SourceConfig } from '../shared/sourceConfig'
 import type { EnsureYtDlpResult } from '../shared/ytdlpStatus'
 import type { VideoQualityEstimate } from '../shared/videoEstimate'
+import type { UpdaterEvent } from '../shared/updater'
 import type {
   AnimeSearchResult,
   EpisodeInfo,
@@ -28,6 +29,13 @@ declare global {
       }
       ffprobe: {
         estimate: (quality: VideoQualityInfo) => Promise<VideoQualityEstimate>
+      }
+      updater: {
+        getVersion: () => Promise<string>
+        check: () => Promise<void>
+        download: () => Promise<void>
+        install: () => Promise<void>
+        onEvent: (callback: (event: UpdaterEvent) => void) => () => void
       }
       download: {
         start: (request: DownloadJobRequest) => Promise<string>

@@ -7,6 +7,8 @@ import { registerDownloadIpcHandlers } from './download/ipc'
 import { registerFfprobeIpcHandlers } from './ffprobe/ipc'
 import { registerSourceConfigIpcHandlers } from './sourceConfigIpc'
 import { registerAnimeIpcHandlers } from './sources/ipc'
+import { checkForUpdates } from './updater/updater'
+import { registerUpdaterIpcHandlers } from './updater/ipc'
 import { ensureYtDlp } from './ytdlp/ensure'
 import { registerYtDlpIpcHandlers } from './ytdlp/ipc'
 
@@ -44,6 +46,15 @@ function createWindow() {
   } else {
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
+
+  // Проверяем обновления только после did-finish-load — события идут через
+  // webContents.send, а до этого момента renderer ещё не подписался на них
+  // (onEvent вызывается в useEffect после маунта), события бы просто терялись.
+  win.webContents.once('did-finish-load', () => {
+    checkForUpdates().catch((error: unknown) => {
+      console.error('Не удалось проверить обновления:', error)
+    })
+  })
 }
 
 app.on('window-all-closed', () => {
@@ -65,6 +76,7 @@ registerAnimeIpcHandlers()
 registerYtDlpIpcHandlers()
 registerFfprobeIpcHandlers()
 registerDownloadIpcHandlers(() => win?.webContents ?? null)
+registerUpdaterIpcHandlers(() => win?.webContents ?? null)
 
 app.whenReady().then(() => {
   createWindow()

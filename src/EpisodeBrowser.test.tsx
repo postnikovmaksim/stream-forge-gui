@@ -31,6 +31,13 @@ function installAnimeMock() {
     dialog: { chooseDirectory: vi.fn() },
     ytdlp: { ensure: vi.fn() },
     ffprobe: { estimate: vi.fn() },
+    updater: {
+      getVersion: vi.fn().mockResolvedValue('0.1.0'),
+      check: vi.fn(),
+      download: vi.fn(),
+      install: vi.fn(),
+      onEvent: vi.fn().mockReturnValue(() => {}),
+    },
     download: { start: vi.fn(), kill: vi.fn(), onEvent: vi.fn().mockReturnValue(() => {}) },
     sources: { get: vi.fn(), save: vi.fn() },
     anime: {

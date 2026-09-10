@@ -1,7 +1,7 @@
 {
   "name": "stream-forge-gui",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Поиск и скачивание видео с настраиваемых потоковых источников (сейчас — в основном аниме)",
   "type": "module",
   "main": "dist-electron/main.js",
@@ -24,6 +24,7 @@
     "@mantine/core": "^9.6.1",
     "@mantine/hooks": "^9.6.1",
     "@tabler/icons-react": "^3.46.0",
+    "electron-updater": "^6.8.9",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
@@ -67,14 +68,21 @@
       "repo": "stream-forge-gui"
     },
     "win": {
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ]
     },
     "mac": {
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "category": "public.app-category.utilities"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Utility",
       "synopsis": "Поиск и скачивание видео с настраиваемых потоковых источников"
     }

@@ -4,6 +4,7 @@ import type { DownloadEvent, DownloadJobRequest } from '../shared/download'
 import type { SourceConfig } from '../shared/sourceConfig'
 import type { EnsureYtDlpResult } from '../shared/ytdlpStatus'
 import type { VideoQualityEstimate } from '../shared/videoEstimate'
+import type { UpdaterEvent } from '../shared/updater'
 import type {
   AnimeSearchResult,
   EpisodeInfo,
@@ -29,6 +30,17 @@ contextBridge.exposeInMainWorld('animedl', {
   ffprobe: {
     estimate: (quality: VideoQualityInfo): Promise<VideoQualityEstimate> =>
       ipcRenderer.invoke('ffprobe:estimate', quality),
+  },
+  updater: {
+    getVersion: (): Promise<string> => ipcRenderer.invoke('app:version'),
+    check: (): Promise<void> => ipcRenderer.invoke('updater:check'),
+    download: (): Promise<void> => ipcRenderer.invoke('updater:download'),
+    install: (): Promise<void> => ipcRenderer.invoke('updater:install'),
+    onEvent: (callback: (event: UpdaterEvent) => void): (() => void) => {
+      const listener = (_event: unknown, payload: UpdaterEvent) => callback(payload)
+      ipcRenderer.on('updater:event', listener)
+      return () => ipcRenderer.removeListener('updater:event', listener)
+    },
   },
   download: {
     start: (request: DownloadJobRequest): Promise<string> =>
