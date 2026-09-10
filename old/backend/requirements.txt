@@ -1,3 +1,0 @@
-anicli_api
-pysocks
-pyinstaller
