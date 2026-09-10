@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { AppShell, Badge, Group, Tabs, Title } from '@mantine/core'
+import { IconAdjustments, IconDownload, IconSearch, IconSettings } from '@tabler/icons-react'
 import AnimeSearch from './AnimeSearch'
 import AppSettingsForm from './AppSettingsForm'
 import DownloadsPanel from './DownloadsPanel'
@@ -10,39 +12,58 @@ type Tab = 'search' | 'sources' | 'settings' | 'downloads'
 function App() {
   const [tab, setTab] = useState<Tab>('search')
   const { jobs, startDownload, killDownload } = useDownloads()
-  const hasRunning = jobs.some((job) => job.status === 'running')
+  const runningCount = jobs.filter((job) => job.status === 'running').length
 
   return (
-    <div className="app">
-      <h1>AnimeDL</h1>
-      <nav>
-        <button onClick={() => setTab('search')} disabled={tab === 'search'}>
-          Поиск
-        </button>
-        <button onClick={() => setTab('sources')} disabled={tab === 'sources'}>
-          Источники
-        </button>
-        <button onClick={() => setTab('settings')} disabled={tab === 'settings'}>
-          Настройки
-        </button>
-        <button onClick={() => setTab('downloads')} disabled={tab === 'downloads'}>
-          Загрузки{hasRunning ? ' •' : ''}
-        </button>
-      </nav>
+    <AppShell header={{ height: 56 }} padding="md">
+      <AppShell.Header>
+        <Group h="100%" px="md">
+          <Title order={3}>AnimeDL</Title>
+        </Group>
+      </AppShell.Header>
 
-      <div style={{ display: tab === 'search' ? 'block' : 'none' }}>
-        <AnimeSearch onStartDownload={startDownload} />
-      </div>
-      <div style={{ display: tab === 'sources' ? 'block' : 'none' }}>
-        <SourcesSettings />
-      </div>
-      <div style={{ display: tab === 'settings' ? 'block' : 'none' }}>
-        <AppSettingsForm />
-      </div>
-      <div style={{ display: tab === 'downloads' ? 'block' : 'none' }}>
-        <DownloadsPanel jobs={jobs} onKill={killDownload} />
-      </div>
-    </div>
+      <AppShell.Main>
+        <Tabs value={tab} onChange={(value) => value && setTab(value as Tab)}>
+          <Tabs.List>
+            <Tabs.Tab value="search" leftSection={<IconSearch size={16} />}>
+              Поиск
+            </Tabs.Tab>
+            <Tabs.Tab value="sources" leftSection={<IconAdjustments size={16} />}>
+              Источники
+            </Tabs.Tab>
+            <Tabs.Tab value="settings" leftSection={<IconSettings size={16} />}>
+              Настройки
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="downloads"
+              leftSection={<IconDownload size={16} />}
+              rightSection={
+                runningCount > 0 ? (
+                  <Badge size="xs" circle>
+                    {runningCount}
+                  </Badge>
+                ) : null
+              }
+            >
+              Загрузки
+            </Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value="search" pt="md" keepMounted>
+            <AnimeSearch onStartDownload={startDownload} />
+          </Tabs.Panel>
+          <Tabs.Panel value="sources" pt="md" keepMounted>
+            <SourcesSettings />
+          </Tabs.Panel>
+          <Tabs.Panel value="settings" pt="md" keepMounted>
+            <AppSettingsForm />
+          </Tabs.Panel>
+          <Tabs.Panel value="downloads" pt="md" keepMounted>
+            <DownloadsPanel jobs={jobs} onKill={killDownload} />
+          </Tabs.Panel>
+        </Tabs>
+      </AppShell.Main>
+    </AppShell>
   )
 }
 

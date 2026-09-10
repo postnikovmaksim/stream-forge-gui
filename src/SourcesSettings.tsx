@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { Button, Group, Loader, NumberInput, Stack, Switch, Table, Text, TextInput, Title } from '@mantine/core'
+import { IconCheck, IconDeviceFloppy } from '@tabler/icons-react'
 import type { SourceConfig } from '../shared/sourceConfig'
 
 function SourcesSettings() {
@@ -26,60 +28,74 @@ function SourcesSettings() {
   }
 
   if (status === 'loading') {
-    return <p>Загрузка конфига источников...</p>
+    return <Loader size="sm" />
   }
 
   return (
-    <div>
-      <h2>Источники</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Вкл.</th>
-            <th>Название</th>
-            <th>Базовый URL</th>
-            <th>Таймаут, мс</th>
-          </tr>
-        </thead>
-        <tbody>
+    <Stack>
+      <Title order={2}>Источники</Title>
+
+      <Table>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Вкл.</Table.Th>
+            <Table.Th>Название</Table.Th>
+            <Table.Th>Базовый URL</Table.Th>
+            <Table.Th>Таймаут, мс</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
           {sources.map((source) => (
-            <tr key={source.id}>
-              <td>
-                <input
-                  type="checkbox"
+            <Table.Tr key={source.id}>
+              <Table.Td>
+                <Switch
                   checked={source.enabled}
-                  onChange={(e) => updateSource(source.id, { enabled: e.target.checked })}
+                  onChange={(e) => updateSource(source.id, { enabled: e.currentTarget.checked })}
                 />
-              </td>
-              <td>{source.name}</td>
-              <td>
-                <input
-                  type="text"
+              </Table.Td>
+              <Table.Td>{source.name}</Table.Td>
+              <Table.Td>
+                <TextInput
                   value={source.baseUrl}
                   placeholder="определяется источником по умолчанию"
-                  onChange={(e) => updateSource(source.id, { baseUrl: e.target.value })}
+                  onChange={(e) => updateSource(source.id, { baseUrl: e.currentTarget.value })}
                 />
-              </td>
-              <td>
-                <input
-                  type="number"
+              </Table.Td>
+              <Table.Td>
+                <NumberInput
                   min={1000}
                   step={1000}
                   value={source.timeoutMs}
-                  onChange={(e) =>
-                    updateSource(source.id, { timeoutMs: Number(e.target.value) })
+                  onChange={(value) =>
+                    updateSource(source.id, { timeoutMs: typeof value === 'number' ? value : 0 })
                   }
+                  w={120}
                 />
-              </td>
-            </tr>
+              </Table.Td>
+            </Table.Tr>
           ))}
-        </tbody>
-      </table>
-      <button onClick={handleSave} disabled={status === 'saving'}>
-        Сохранить
-      </button>
-      {status === 'saved' && <span> Сохранено</span>}
-    </div>
+        </Table.Tbody>
+      </Table>
+
+      <Group>
+        <Button
+          leftSection={<IconDeviceFloppy size={16} />}
+          onClick={handleSave}
+          loading={status === 'saving'}
+          w="fit-content"
+        >
+          Сохранить
+        </Button>
+        {status === 'saved' && (
+          <Group gap={4}>
+            <IconCheck size={16} color="var(--mantine-color-green-6)" />
+            <Text size="sm" c="green">
+              Сохранено
+            </Text>
+          </Group>
+        )}
+      </Group>
+    </Stack>
   )
 }
 

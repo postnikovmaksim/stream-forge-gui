@@ -1,6 +1,15 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MantineProvider } from '@mantine/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+
+function renderApp() {
+  return render(
+    <MantineProvider>
+      <App />
+    </MantineProvider>,
+  )
+}
 
 function installAnimedlMock() {
   const startMock = vi.fn().mockImplementation(() => Promise.resolve(`job-${Math.random()}`))
@@ -55,9 +64,9 @@ describe('полный сценарий: поиск -> эпизоды -> кач�
 
   it('доводит пользователя от поиска до запуска скачивания выбранных серий', async () => {
     const startMock = installAnimedlMock()
-    render(<App />)
+    renderApp()
 
-    const input = await screen.findByPlaceholderText('Название аниме')
+    const input = await screen.findByLabelText('Название аниме')
     fireEvent.change(input, { target: { value: 'One Punch Man' } })
     fireEvent.click(screen.getByText('Искать'))
 

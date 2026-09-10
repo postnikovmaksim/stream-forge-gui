@@ -1,4 +1,18 @@
 import { useEffect, useState } from 'react'
+import {
+  Button,
+  Fieldset,
+  Group,
+  Loader,
+  NumberInput,
+  PasswordInput,
+  Stack,
+  Switch,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core'
+import { IconCheck, IconDeviceFloppy, IconFolder } from '@tabler/icons-react'
 import type { AppSettings } from '../shared/appSettings'
 
 function AppSettingsForm() {
@@ -32,99 +46,128 @@ function AppSettingsForm() {
   }
 
   if (!settings) {
-    return <p>Загрузка настроек...</p>
+    return <Loader size="sm" />
   }
 
   return (
-    <div>
-      <h2>Настройки</h2>
+    <Stack maw={480}>
+      <Title order={2}>Настройки</Title>
 
-      <div>
-        <label>Папка скачивания</label>
-        <input
-          type="text"
+      <Group align="flex-end">
+        <TextInput
+          label="Папка скачивания"
           value={settings.downloadPath}
           placeholder={defaultPath}
           onChange={(e) => {
-            setSettings({ ...settings, downloadPath: e.target.value })
+            setSettings({ ...settings, downloadPath: e.currentTarget.value })
             setStatus('idle')
           }}
+          style={{ flex: 1 }}
         />
-        <button onClick={handleBrowse}>Обзор...</button>
-      </div>
+        <Button variant="default" leftSection={<IconFolder size={16} />} onClick={handleBrowse}>
+          Обзор...
+        </Button>
+      </Group>
 
-      <div>
-        <label>
-          <input
-            type="checkbox"
+      <NumberInput
+        label="Параллельных загрузок"
+        min={1}
+        max={10}
+        value={settings.parallelDownloads}
+        onChange={(value) => {
+          setSettings({
+            ...settings,
+            parallelDownloads: typeof value === 'number' ? value : 1,
+          })
+          setStatus('idle')
+        }}
+      />
+
+      <Fieldset legend="SOCKS5-прокси">
+        <Stack>
+          <Switch
+            label="Использовать SOCKS5-прокси"
             checked={settings.proxy.enabled}
             onChange={(e) => {
-              setSettings({ ...settings, proxy: { ...settings.proxy, enabled: e.target.checked } })
+              setSettings({
+                ...settings,
+                proxy: { ...settings.proxy, enabled: e.currentTarget.checked },
+              })
               setStatus('idle')
             }}
           />
-          Использовать SOCKS5-прокси
-        </label>
-      </div>
 
-      <div>
-        <input
-          type="text"
-          placeholder="IP"
-          value={settings.proxy.host}
-          onChange={(e) => {
-            setSettings({ ...settings, proxy: { ...settings.proxy, host: e.target.value } })
-            setStatus('idle')
-          }}
-        />
-        <input
-          type="text"
-          placeholder="Порт"
-          value={settings.proxy.port}
-          onChange={(e) => {
-            setSettings({ ...settings, proxy: { ...settings.proxy, port: e.target.value } })
-            setStatus('idle')
-          }}
-        />
-        <input
-          type="text"
-          placeholder="Логин"
-          value={settings.proxy.user}
-          onChange={(e) => {
-            setSettings({ ...settings, proxy: { ...settings.proxy, user: e.target.value } })
-            setStatus('idle')
-          }}
-        />
-        <input
-          type="password"
-          placeholder="Пароль"
-          value={settings.proxy.password}
-          onChange={(e) => {
-            setSettings({ ...settings, proxy: { ...settings.proxy, password: e.target.value } })
-            setStatus('idle')
-          }}
-        />
-      </div>
+          <Group grow>
+            <TextInput
+              label="IP"
+              value={settings.proxy.host}
+              onChange={(e) => {
+                setSettings({
+                  ...settings,
+                  proxy: { ...settings.proxy, host: e.currentTarget.value },
+                })
+                setStatus('idle')
+              }}
+            />
+            <TextInput
+              label="Порт"
+              value={settings.proxy.port}
+              onChange={(e) => {
+                setSettings({
+                  ...settings,
+                  proxy: { ...settings.proxy, port: e.currentTarget.value },
+                })
+                setStatus('idle')
+              }}
+            />
+          </Group>
 
-      <div>
-        <label>Параллельных загрузок</label>
-        <input
-          type="number"
-          min={1}
-          max={10}
-          value={settings.parallelDownloads}
-          onChange={(e) => {
-            setSettings({ ...settings, parallelDownloads: Number(e.target.value) })
-            setStatus('idle')
-          }}
-        />
-      </div>
+          <Group grow>
+            <TextInput
+              label="Логин"
+              value={settings.proxy.user}
+              onChange={(e) => {
+                setSettings({
+                  ...settings,
+                  proxy: { ...settings.proxy, user: e.currentTarget.value },
+                })
+                setStatus('idle')
+              }}
+            />
+            <PasswordInput
+              label="Пароль"
+              value={settings.proxy.password}
+              onChange={(e) => {
+                setSettings({
+                  ...settings,
+                  proxy: { ...settings.proxy, password: e.currentTarget.value },
+                })
+                setStatus('idle')
+              }}
+            />
+          </Group>
+        </Stack>
+      </Fieldset>
 
-      <button onClick={handleSave} disabled={status === 'saving'}>
-        Сохранить
-      </button>
-      {status === 'saved' && <span> Сохранено</span>}
-    </div>
+      <Group>
+        <Button
+          leftSection={<IconDeviceFloppy size={16} />}
+          onClick={handleSave}
+          loading={status === 'saving'}
+          w="fit-content"
+        >
+          Сохранить
+        </Button>
+        {status === 'saved' && (
+          <Group gap={4}>
+            <IconCheck size={16} color="var(--mantine-color-green-6)" />
+            <Text size="sm" c="green">
+              Сохранено
+            </Text>
+          </Group>
+        )}
+      </Group>
+    </Stack>
   )
 }
 

@@ -1,4 +1,18 @@
 import { useEffect, useState } from 'react'
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Chip,
+  Group,
+  Loader,
+  Paper,
+  ScrollArea,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
+import { IconAlertCircle, IconDownload } from '@tabler/icons-react'
 import type { DownloadJobRequest } from '../shared/download'
 import type { EpisodeInfo, EpisodeSourceInfo, VideoQualityInfo } from '../shared/animeTypes'
 
@@ -99,61 +113,95 @@ function EpisodeBrowser({
   }
 
   return (
-    <div>
-      <h3>{animeTitle}</h3>
+    <Stack>
+      <Title order={3}>{animeTitle}</Title>
 
-      {episodesError && <p role="alert">Ошибка: {episodesError}</p>}
+      {episodesError && (
+        <Alert color="red" icon={<IconAlertCircle size={16} />}>
+          {episodesError}
+        </Alert>
+      )}
 
-      <ul>
-        {episodes.map((episode) => (
-          <li key={episode.index}>
-            <input
-              type="checkbox"
-              checked={checked.has(episode.index)}
-              onChange={() => toggleChecked(episode.index)}
-            />
-            <button onClick={() => handlePreview(episode.index)}>{episode.title}</button>
-          </li>
-        ))}
-      </ul>
+      {episodes.length === 0 && !episodesError && <Loader size="sm" />}
 
-      {stepError && <p role="alert">Ошибка: {stepError}</p>}
+      <ScrollArea.Autosize mah={320}>
+        <Stack gap={4}>
+          {episodes.map((episode) => (
+            <Paper key={episode.index} withBorder p="xs" radius="sm">
+              <Group gap="xs" wrap="nowrap">
+                <Checkbox
+                  checked={checked.has(episode.index)}
+                  onChange={() => toggleChecked(episode.index)}
+                />
+                <Text
+                  onClick={() => handlePreview(episode.index)}
+                  style={{ cursor: 'pointer' }}
+                  fw={previewIndex === episode.index ? 700 : 400}
+                >
+                  {episode.title}
+                </Text>
+              </Group>
+            </Paper>
+          ))}
+        </Stack>
+      </ScrollArea.Autosize>
+
+      {stepError && (
+        <Alert color="red" icon={<IconAlertCircle size={16} />}>
+          {stepError}
+        </Alert>
+      )}
 
       {previewIndex !== null && (
-        <div>
-          <h4>Источник/озвучка</h4>
-          <ul>
-            {sources.map((source) => (
-              <li key={source.index}>
-                <button onClick={() => handleSelectSource(source.index)}>
+        <Stack gap={4}>
+          <Text size="sm" fw={500}>
+            Источник/озвучка
+          </Text>
+          <Chip.Group
+            value={sourceIndex !== null ? String(sourceIndex) : null}
+            onChange={(value) => typeof value === 'string' && handleSelectSource(Number(value))}
+          >
+            <Group gap="xs">
+              {sources.map((source) => (
+                <Chip key={source.index} value={String(source.index)}>
                   {source.title}
                   {source.domain ? ` [плеер] ${source.domain}` : ''}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+                </Chip>
+              ))}
+            </Group>
+          </Chip.Group>
+        </Stack>
       )}
 
       {sourceIndex !== null && (
-        <div>
-          <h4>Качество</h4>
-          <ul>
-            {qualities.map((quality) => (
-              <li key={quality.quality}>
-                <button onClick={() => setSelectedQuality(quality.quality)}>
+        <Stack gap={4}>
+          <Text size="sm" fw={500}>
+            Качество
+          </Text>
+          <Chip.Group
+            value={selectedQuality}
+            onChange={(value) => typeof value === 'string' && setSelectedQuality(value)}
+          >
+            <Group gap="xs">
+              {qualities.map((quality) => (
+                <Chip key={quality.quality} value={quality.quality}>
                   {quality.quality}p ({quality.type})
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+                </Chip>
+              ))}
+            </Group>
+          </Chip.Group>
+        </Stack>
       )}
 
-      <button onClick={handleDownload} disabled={checked.size === 0 || !selectedQuality}>
+      <Button
+        leftSection={<IconDownload size={16} />}
+        onClick={handleDownload}
+        disabled={checked.size === 0 || !selectedQuality}
+        w="fit-content"
+      >
         Скачать выбранные ({checked.size})
-      </button>
-    </div>
+      </Button>
+    </Stack>
   )
 }
 
