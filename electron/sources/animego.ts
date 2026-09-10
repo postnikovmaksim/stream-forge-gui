@@ -6,6 +6,7 @@ import type {
 } from '../../shared/animeTypes'
 import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
 import { fetchJson, fetchText } from './httpClient'
+import { extractAniboomVideos, isAniboomUrl } from './players/aniboom'
 import { extractKodikVideos, isKodikUrl } from './players/kodik'
 
 // animego.me — агрегатор: сам не хранит видео, а собирает ссылки на сторонние
@@ -25,11 +26,24 @@ const DEFAULT_BASE_URL = 'https://animego.me'
 
 function unsupportedPlayerError(domain: string): Error {
   return new Error(
-    `Плеер "${domain}" пока не поддержан — реализован только Kodik. ` +
-      'AniBoom и собственный cdn-iframe animego отдают iframe со встроенным ' +
-      'плеером без прямой ссылки на файл, для каждого нужен отдельный разбор ' +
+    `Плеер "${domain}" пока не поддержан — реализованы Kodik и AniBoom. ` +
+      'Собственный cdn-iframe animego отдаёт iframe со встроенным плеером ' +
+      'без прямой ссылки на файл, для него нужен отдельный разбор ' +
       '(проверено: yt-dlp тоже не умеет их скачивать напрямую).',
   )
+}
+
+async function extractProviderVideos(
+  playerUrl: string,
+  timeoutMs: number,
+): Promise<VideoQualityInfo[]> {
+  if (isKodikUrl(playerUrl)) {
+    return extractKodikVideos(playerUrl, timeoutMs)
+  }
+  if (isAniboomUrl(playerUrl)) {
+    return extractAniboomVideos(playerUrl, timeoutMs)
+  }
+  throw unsupportedPlayerError(extractDomain(playerUrl))
 }
 
 interface AjaxContentResponse {
@@ -229,10 +243,7 @@ export const animegoPlugin: AnimeSourcePlugin = {
     if (!provider) {
       throw new Error(`Озвучка/плеер с индексом ${sourceIndex} не найдены`)
     }
-    if (!isKodikUrl(provider.playerUrl)) {
-      throw unsupportedPlayerError(provider.domain)
-    }
-    return extractKodikVideos(provider.playerUrl, options.timeoutMs)
+    return extractProviderVideos(provider.playerUrl, options.timeoutMs)
   },
 
   async getVideoUrls(
@@ -252,11 +263,17 @@ export const animegoPlugin: AnimeSourcePlugin = {
         baseUrl,
         options.timeoutMs,
       )
-      if (!provider || !isKodikUrl(provider.playerUrl)) {
+      if (!provider) {
         results.push([])
         continue
       }
-      results.push(await extractKodikVideos(provider.playerUrl, options.timeoutMs))
+      try {
+        results.push(await extractProviderVideos(provider.playerUrl, options.timeoutMs))
+      } catch {
+        // неподдержанный плеер для конкретной серии — пропускаем её, а не
+        // валим всю пачку скачивания остальных
+        results.push([])
+      }
     }
 
     return results
