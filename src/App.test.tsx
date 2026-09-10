@@ -29,9 +29,11 @@ function installAnimedlMock() {
     ffprobe: { estimate: vi.fn() },
     updater: {
       getVersion: vi.fn().mockResolvedValue('0.1.0'),
+      getPlatform: vi.fn().mockResolvedValue('darwin'),
       check: vi.fn(),
       download: vi.fn(),
       install: vi.fn(),
+      openReleasePage: vi.fn(),
       onEvent: vi.fn().mockReturnValue(() => {}),
     },
     download: {

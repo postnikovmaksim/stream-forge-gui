@@ -32,9 +32,11 @@ declare global {
       }
       updater: {
         getVersion: () => Promise<string>
+        getPlatform: () => Promise<string>
         check: () => Promise<void>
         download: () => Promise<void>
         install: () => Promise<void>
+        openReleasePage: () => Promise<void>
         onEvent: (callback: (event: UpdaterEvent) => void) => () => void
       }
       download: {

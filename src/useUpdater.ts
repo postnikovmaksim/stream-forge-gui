@@ -12,6 +12,7 @@ export type UpdaterStatus =
 
 export interface UpdaterState {
   version: string
+  platform: string | null
   status: UpdaterStatus
   latestVersion: string | null
   progress: number | null
@@ -21,6 +22,7 @@ export interface UpdaterState {
 export function useUpdater() {
   const [state, setState] = useState<UpdaterState>({
     version: '',
+    platform: null,
     status: 'idle',
     latestVersion: null,
     progress: null,
@@ -30,6 +32,9 @@ export function useUpdater() {
   useEffect(() => {
     window.animedl.updater.getVersion().then((version) => {
       setState((prev) => ({ ...prev, version }))
+    })
+    window.animedl.updater.getPlatform().then((platform) => {
+      setState((prev) => ({ ...prev, platform }))
     })
   }, [])
 
@@ -72,5 +77,9 @@ export function useUpdater() {
     window.animedl.updater.install()
   }, [])
 
-  return { ...state, check, download, install }
+  const openReleasePage = useCallback(() => {
+    window.animedl.updater.openReleasePage()
+  }, [])
+
+  return { ...state, check, download, install, openReleasePage }
 }

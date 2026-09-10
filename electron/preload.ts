@@ -33,9 +33,11 @@ contextBridge.exposeInMainWorld('animedl', {
   },
   updater: {
     getVersion: (): Promise<string> => ipcRenderer.invoke('app:version'),
+    getPlatform: (): Promise<string> => ipcRenderer.invoke('app:platform'),
     check: (): Promise<void> => ipcRenderer.invoke('updater:check'),
     download: (): Promise<void> => ipcRenderer.invoke('updater:download'),
     install: (): Promise<void> => ipcRenderer.invoke('updater:install'),
+    openReleasePage: (): Promise<void> => ipcRenderer.invoke('updater:open-release-page'),
     onEvent: (callback: (event: UpdaterEvent) => void): (() => void) => {
       const listener = (_event: unknown, payload: UpdaterEvent) => callback(payload)
       ipcRenderer.on('updater:event', listener)

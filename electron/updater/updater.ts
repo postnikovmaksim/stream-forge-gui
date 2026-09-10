@@ -1,4 +1,4 @@
-import { app } from 'electron'
+import { app, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import type { UpdaterEvent } from '../../shared/updater'
 
@@ -12,14 +12,23 @@ import type { UpdaterEvent } from '../../shared/updater'
 // скачать" — значит сначала показываем, что есть новая версия, и скачиваем
 // только по явному клику, а не тихо в фоне.
 //
-// Платформенные ограничения (задокументированы и в README):
-// - macOS: реальная установка обновления (quitAndInstall) у electron-updater
-//   штатно требует подписанное приложение (Squirrel.Mac) — у нас пока нет
-//   Developer ID сертификата, так что на macOS до появления подписи это,
-//   вероятно, будет работать не до конца бесшовно.
-// - Linux: авто-обновление у electron-updater поддержано только для
-//   AppImage (подменяет файл на месте) — .deb-инсталляция обновляется через
-//   штатный apt/dpkg-механизм ОС, не через это приложение.
+// macOS: quitAndInstall() НЕ вызывается никогда — проверено вживую (полный
+// цикл включая сам клик "Установить"): нативный шаг применения обновления
+// (Squirrel.Mac/ShipIt) всегда проверяет цифровую подпись нового .app перед
+// подменой старого и без Developer ID сертификата падает с
+// `SQRLCodeSignatureErrorDomain` ("Code signature ... did not pass
+// validation"). Это ограничение самой macOS, а не что-то, что можно
+// обойти в коде — без платного Apple Developer аккаунта эта проверка не
+// пройдёт никогда, при любом качестве сборки. Поэтому на macOS честно
+// не претендуем на бесшовность: после скачивания сразу предлагаем открыть
+// страницу релиза для ручной переустановки (см. UpdateControl.tsx,
+// разветвление по platform === 'darwin').
+//
+// Linux: авто-обновление у electron-updater поддержано только для AppImage
+// (подменяет файл на месте) — .deb-инсталляция обновляется через штатный
+// apt/dpkg-механизм ОС, не через это приложение.
+const RELEASES_URL = 'https://github.com/postnikovmaksim/stream-forge-gui/releases/latest'
+
 let emit: ((event: UpdaterEvent) => void) | null = null
 
 export function initUpdater(emitEvent: (event: UpdaterEvent) => void): void {
@@ -61,4 +70,8 @@ export async function downloadUpdate(): Promise<void> {
 
 export function quitAndInstall(): void {
   autoUpdater.quitAndInstall()
+}
+
+export function openReleasePage(): Promise<void> {
+  return shell.openExternal(RELEASES_URL)
 }
