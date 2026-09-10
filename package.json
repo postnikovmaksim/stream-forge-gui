@@ -76,9 +76,7 @@
     "linux": {
       "target": ["AppImage", "deb"],
       "category": "Utility",
-      "desktopName": "streamforge.desktop",
-      "synopsis": "Поиск и скачивание видео с настраиваемых потоковых источников",
-      "syncDesktopName": true
+      "synopsis": "Поиск и скачивание видео с настраиваемых потоковых источников"
     }
   }
 }
