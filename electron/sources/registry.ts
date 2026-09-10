@@ -3,6 +3,7 @@ import type { SourceConfig } from '../../shared/sourceConfig'
 import { DEFAULT_SOURCES } from '../../shared/sourceConfig'
 import { anilibriaPlugin } from './anilibria'
 import { animegoPlugin } from './animego'
+import { yummyAnimePlugin } from './yummyAnime'
 
 function notImplementedPlugin(id: string, name: string): AnimeSourcePlugin {
   const message = `Источник "${name}" ещё не реализован в новой версии`
@@ -31,6 +32,7 @@ function notImplementedPlugin(id: string, name: string): AnimeSourcePlugin {
 const implementedPlugins: Record<string, AnimeSourcePlugin> = {
   anilibria: anilibriaPlugin,
   animego: animegoPlugin,
+  yummy_anime: yummyAnimePlugin,
 }
 
 const builtinPlugins = new Map<string, AnimeSourcePlugin>(
