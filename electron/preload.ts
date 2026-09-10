@@ -1,6 +1,10 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
+import type { SourceConfig } from '../shared/sourceConfig'
 
 contextBridge.exposeInMainWorld('animedl', {
-  // сюда будут добавлены методы IPC (поиск, скачивание, настройки)
-  // по мере переноса логики из старого backend.py
+  sources: {
+    get: (): Promise<SourceConfig[]> => ipcRenderer.invoke('sources:get'),
+    save: (sources: SourceConfig[]): Promise<SourceConfig[]> =>
+      ipcRenderer.invoke('sources:save', sources),
+  },
 })
