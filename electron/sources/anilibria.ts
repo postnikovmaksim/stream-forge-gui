@@ -5,6 +5,7 @@ import type {
   VideoQualityInfo,
 } from '../../shared/animeTypes'
 import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
+import { fetchJson } from './httpClient'
 
 // API описан здесь: https://anilibria.top/api/docs/v1
 // (домен сайта — anilibria.top, сам API отдаётся с aniliberty.top; оба варианта
@@ -31,24 +32,6 @@ interface AniLibertyRelease {
 
 function resolveBaseUrl(options: SourceRequestOptions): string {
   return options.baseUrl || DEFAULT_BASE_URL
-}
-
-async function fetchJson<T>(url: string, timeoutMs: number): Promise<T> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeoutMs)
-
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'animedl' },
-    })
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
-    return (await response.json()) as T
-  } finally {
-    clearTimeout(timer)
-  }
 }
 
 function episodeQualities(episode: AniLibertyEpisode): VideoQualityInfo[] {
