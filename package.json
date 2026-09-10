@@ -1,0 +1,28 @@
+{
+  "name": "animedl",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Поиск и скачивание аниме с настраиваемых источников",
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.2",
+    "vite-plugin-electron": "^1.1.2"
+  }
+}
