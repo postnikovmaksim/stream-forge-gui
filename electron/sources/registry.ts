@@ -2,6 +2,7 @@ import type { AnimeSourcePlugin } from '../../shared/sourcePlugin'
 import type { SourceConfig } from '../../shared/sourceConfig'
 import { DEFAULT_SOURCES } from '../../shared/sourceConfig'
 import { anilibriaPlugin } from './sites/anilibria'
+import { aniMediaPlugin } from './sites/aniMedia'
 import { animegoPlugin } from './sites/animego'
 import { astarPlugin } from './sites/astar'
 import { dreamcastPlugin } from './sites/dreamcast'
@@ -34,6 +35,7 @@ function notImplementedPlugin(id: string, name: string): AnimeSourcePlugin {
 
 const implementedPlugins: Record<string, AnimeSourcePlugin> = {
   anilibria: anilibriaPlugin,
+  ani_media: aniMediaPlugin,
   animego: animegoPlugin,
   astar: astarPlugin,
   dreamcast: dreamcastPlugin,

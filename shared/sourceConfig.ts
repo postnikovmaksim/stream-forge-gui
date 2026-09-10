@@ -12,6 +12,7 @@ export const DEFAULT_SOURCES: SourceConfig[] = [
   // помимо времени на сетевые запросы.
   { id: 'astar', name: 'AStar', enabled: true, baseUrl: '', timeoutMs: 40000 },
   { id: 'anilibria', name: 'AniLibria', enabled: true, baseUrl: '', timeoutMs: 20000 },
+  { id: 'ani_media', name: 'AniMedia Online', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'animego', name: 'AnimeGo', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'animevost', name: 'AnimeVost', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'dreamcast', name: 'DreamCast', enabled: true, baseUrl: '', timeoutMs: 20000 },
