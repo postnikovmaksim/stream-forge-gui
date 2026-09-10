@@ -10,6 +10,14 @@ import { registerAnimeIpcHandlers } from './sources/ipc'
 import { ensureYtDlp } from './ytdlp/ensure'
 import { registerYtDlpIpcHandlers } from './ytdlp/ipc'
 
+// Electron по умолчанию берёт app.name (и вместе с ним userData-путь) из поля
+// "name" в package.json — при ребрендинге в StreamForge оно сменилось на
+// "stream-forge-gui", и без этой строки уже сохранённые локально настройки/
+// sources.json в папке "animedl" осиротели бы (проверено вживую: появляется
+// новая пустая папка "stream-forge-gui" вместо существующей "animedl").
+// Явно фиксируем старое имя, чтобы ребрендинг был чисто визуальным.
+app.setName('animedl')
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 process.env.APP_ROOT = path.join(__dirname, '..')
