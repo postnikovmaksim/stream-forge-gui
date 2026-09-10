@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import {
   Alert,
   Button,
-  Checkbox,
   Chip,
   Group,
   Loader,
@@ -30,6 +29,7 @@ function EpisodeBrowser({
   const [episodes, setEpisodes] = useState<EpisodeInfo[]>([])
   const [episodesError, setEpisodesError] = useState('')
   const [checked, setChecked] = useState<Set<number>>(new Set())
+  const [dragAnchor, setDragAnchor] = useState<number | null>(null)
 
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const [sources, setSources] = useState<EpisodeSourceInfo[]>([])
@@ -45,16 +45,37 @@ function EpisodeBrowser({
     )
   }, [sourceId, animeId])
 
-  function toggleChecked(index: number) {
-    setChecked((prev) => {
-      const next = new Set(prev)
-      if (next.has(index)) {
-        next.delete(index)
-      } else {
-        next.add(index)
-      }
-      return next
-    })
+  // Пока зажата кнопка мыши (dragAnchor задан), протягивание по другим сериям
+  // расширяет диапазон выбора. Слушаем mouseup на всём окне — отпустить кнопку
+  // можно и вне списка серий.
+  useEffect(() => {
+    if (dragAnchor === null) return
+
+    function handleMouseUp() {
+      setDragAnchor(null)
+    }
+
+    window.addEventListener('mouseup', handleMouseUp)
+    return () => window.removeEventListener('mouseup', handleMouseUp)
+  }, [dragAnchor])
+
+  function selectRange(from: number, to: number) {
+    const start = Math.min(from, to)
+    const end = Math.max(from, to)
+    const next = new Set<number>()
+    for (let i = start; i <= end; i++) next.add(i)
+    setChecked(next)
+  }
+
+  function handleEpisodeMouseDown(index: number) {
+    setDragAnchor(index)
+    selectRange(index, index)
+    handlePreview(index)
+  }
+
+  function handleEpisodeMouseEnter(index: number) {
+    if (dragAnchor === null) return
+    selectRange(dragAnchor, index)
   }
 
   function handlePreview(index: number) {
@@ -125,22 +146,23 @@ function EpisodeBrowser({
       {episodes.length === 0 && !episodesError && <Loader size="sm" />}
 
       <ScrollArea.Autosize mah={320}>
-        <Stack gap={4}>
+        <Stack gap={4} style={{ userSelect: 'none' }}>
           {episodes.map((episode) => (
-            <Paper key={episode.index} withBorder p="xs" radius="sm">
-              <Group gap="xs" wrap="nowrap">
-                <Checkbox
-                  checked={checked.has(episode.index)}
-                  onChange={() => toggleChecked(episode.index)}
-                />
-                <Text
-                  onClick={() => handlePreview(episode.index)}
-                  style={{ cursor: 'pointer' }}
-                  fw={previewIndex === episode.index ? 700 : 400}
-                >
-                  {episode.title}
-                </Text>
-              </Group>
+            <Paper
+              key={episode.index}
+              withBorder
+              p="xs"
+              radius="sm"
+              onMouseDown={() => handleEpisodeMouseDown(episode.index)}
+              onMouseEnter={() => handleEpisodeMouseEnter(episode.index)}
+              style={{
+                cursor: 'pointer',
+                backgroundColor: checked.has(episode.index)
+                  ? 'var(--mantine-color-blue-light)'
+                  : undefined,
+              }}
+            >
+              <Text fw={previewIndex === episode.index ? 700 : 400}>{episode.title}</Text>
             </Paper>
           ))}
         </Stack>

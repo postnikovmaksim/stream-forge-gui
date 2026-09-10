@@ -74,17 +74,20 @@ describe('полный сценарий: поиск -> эпизоды -> кач�
     fireEvent.click(resultButton)
 
     const episode1 = await screen.findByText('Серия 1')
-    fireEvent.click(episode1)
+    const episode2 = await screen.findByText('Серия 2')
 
+    // выбор серий кликом + протягиванием с зажатой кнопкой мыши
+    fireEvent.mouseDown(episode1)
+    fireEvent.mouseEnter(episode2)
+    fireEvent.mouseUp(episode2)
+
+    // озвучка/качество должны появиться сами по себе после выбора серий,
+    // без отдельного клика по названию серии
     const sourceButton = await screen.findByText('AniLibria')
     fireEvent.click(sourceButton)
 
     const quality480 = await screen.findByText('480p (m3u8)')
     fireEvent.click(quality480)
-
-    const checkboxes = screen.getAllByRole('checkbox')
-    fireEvent.click(checkboxes[0])
-    fireEvent.click(checkboxes[1])
 
     const downloadButton = screen.getByText(/Скачать выбранные/)
     expect(downloadButton).not.toBeDisabled()
@@ -105,7 +108,7 @@ describe('полный сценарий: поиск -> эпизоды -> кач�
       isM3u8: true,
     })
 
-    fireEvent.click(screen.getByText(/Загрузки/))
+    fireEvent.click(screen.getByRole('tab', { name: /Загрузки/ }))
     expect(await screen.findAllByText(/ep 1 \| Ванпанчмен \| 480/)).not.toHaveLength(0)
   })
 })
