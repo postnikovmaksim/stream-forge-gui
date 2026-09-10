@@ -116,6 +116,49 @@ describe('EpisodeBrowser', () => {
     expect(screen.getByText(/Скачать выбранные \(1\)/)).toBeInTheDocument()
   })
 
+  it('shift+клик выбирает диапазон от последнего обычного клика без протягивания мышью', async () => {
+    renderEpisodeBrowser()
+
+    const episode1 = await screen.findByText('Серия 1')
+    fireEvent.mouseDown(episode1)
+    fireEvent.mouseUp(episode1)
+    expect(screen.getByText(/Скачать выбранные \(1\)/)).toBeInTheDocument()
+
+    const episode4 = await screen.findByText('Серия 4')
+    fireEvent.mouseDown(episode4, { shiftKey: true })
+    fireEvent.mouseUp(episode4)
+    expect(screen.getByText(/Скачать выбранные \(4\)/)).toBeInTheDocument()
+
+    // повторный shift+клик расширяет от того же якоря (первого клика), а не
+    // от последнего shift-клика
+    const episode2 = await screen.findByText('Серия 2')
+    fireEvent.mouseDown(episode2, { shiftKey: true })
+    fireEvent.mouseUp(episode2)
+    expect(screen.getByText(/Скачать выбранные \(2\)/)).toBeInTheDocument()
+  })
+
+  it('шаг выбора плеера показывается даже с единственным плеером и выбирается автоматически', async () => {
+    renderEpisodeBrowser()
+
+    const episode1 = await screen.findByText('Серия 1')
+    fireEvent.mouseDown(episode1)
+    fireEvent.mouseUp(episode1)
+
+    // единственная озвучка ещё не выбрана — шага "Плеер" пока нет
+    await screen.findByText('AniLibria')
+    expect(screen.getAllByText('AniLibria')).toHaveLength(1)
+
+    fireEvent.click(screen.getByText('AniLibria'))
+
+    // после выбора озвучки шаг "Плеер" появляется и сразу показывает
+    // единственный вариант выбранным, без лишнего клика
+    await screen.findByText('Плеер')
+    expect(screen.getAllByText('AniLibria')).toHaveLength(2)
+    await waitFor(() =>
+      expect(window.animedl.anime.getQualities).toHaveBeenCalledWith('anilibria', '1210', 0, 0),
+    )
+  })
+
   it('несколько озвучек: сначала выбор озвучки (по алфавиту), потом плеера под неё', async () => {
     window.animedl.anime.getSources = vi.fn().mockResolvedValue([
       { index: 0, title: 'Zeta Dub', domain: 'kodikplayer.com' },

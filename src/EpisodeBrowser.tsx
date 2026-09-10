@@ -30,6 +30,7 @@ function EpisodeBrowser({
   const [episodesError, setEpisodesError] = useState('')
   const [checked, setChecked] = useState<Set<number>>(new Set())
   const [dragAnchor, setDragAnchor] = useState<number | null>(null)
+  const [anchorIndex, setAnchorIndex] = useState<number | null>(null)
 
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const [sources, setSources] = useState<EpisodeSourceInfo[]>([])
@@ -68,7 +69,16 @@ function EpisodeBrowser({
     setChecked(next)
   }
 
-  function handleEpisodeMouseDown(index: number) {
+  function handleEpisodeMouseDown(index: number, shiftKey: boolean) {
+    // Shift+клик — как в файловых менеджерах: расширяет выбор от последнего
+    // обычного клика (anchorIndex) до текущей серии, без протягивания мышью.
+    if (shiftKey && anchorIndex !== null) {
+      selectRange(anchorIndex, index)
+      handlePreview(index)
+      return
+    }
+
+    setAnchorIndex(index)
     setDragAnchor(index)
     selectRange(index, index)
     handlePreview(index)
@@ -101,8 +111,9 @@ function EpisodeBrowser({
     setSelectedQuality(null)
     setStepError('')
 
-    // Если под эту озвучку есть только один плеер — нет смысла заставлять
-    // выбирать его отдельным шагом, выбираем сразу.
+    // Если под эту озвучку есть только один плеер — шаг всё равно показываем
+    // (видно, какой именно плеер используется), но выбираем его сразу, не
+    // заставляя лишний раз кликать.
     const matches = sources.filter((source) => source.title === dubbing)
     if (matches.length === 1) {
       handleSelectSource(matches[0].index)
@@ -175,7 +186,7 @@ function EpisodeBrowser({
             withBorder
             p="xs"
             radius="sm"
-            onMouseDown={() => handleEpisodeMouseDown(episode.index)}
+            onMouseDown={(e) => handleEpisodeMouseDown(episode.index, e.shiftKey)}
             onMouseEnter={() => handleEpisodeMouseEnter(episode.index)}
             style={{
               cursor: 'pointer',
@@ -206,7 +217,12 @@ function EpisodeBrowser({
           >
             <SimpleGrid cols={3} spacing="xs">
               {dubbingNames.map((name) => (
-                <Chip key={name} value={name}>
+                <Chip
+                  key={name}
+                  value={name}
+                  style={{ width: '100%' }}
+                  styles={{ label: { width: '100%', justifyContent: 'center' } }}
+                >
                   {name}
                 </Chip>
               ))}
@@ -215,7 +231,7 @@ function EpisodeBrowser({
         </Stack>
       )}
 
-      {selectedDubbing !== null && playersForDubbing.length > 1 && (
+      {selectedDubbing !== null && playersForDubbing.length > 0 && (
         <Stack gap={4}>
           <Text size="sm" fw={500}>
             Плеер
