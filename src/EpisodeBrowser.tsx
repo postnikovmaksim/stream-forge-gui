@@ -1,16 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  Alert,
-  Button,
-  Chip,
-  Group,
-  Loader,
-  Paper,
-  ScrollArea,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core'
+import { Alert, Button, Chip, Group, Loader, Paper, Stack, Text, Title } from '@mantine/core'
 import { IconAlertCircle, IconDownload } from '@tabler/icons-react'
 import type { DownloadJobRequest } from '../shared/download'
 import type { EpisodeInfo, EpisodeSourceInfo, VideoQualityInfo } from '../shared/animeTypes'
@@ -145,28 +134,26 @@ function EpisodeBrowser({
 
       {episodes.length === 0 && !episodesError && <Loader size="sm" />}
 
-      <ScrollArea.Autosize mah={320}>
-        <Stack gap={4} style={{ userSelect: 'none' }}>
-          {episodes.map((episode) => (
-            <Paper
-              key={episode.index}
-              withBorder
-              p="xs"
-              radius="sm"
-              onMouseDown={() => handleEpisodeMouseDown(episode.index)}
-              onMouseEnter={() => handleEpisodeMouseEnter(episode.index)}
-              style={{
-                cursor: 'pointer',
-                backgroundColor: checked.has(episode.index)
-                  ? 'var(--mantine-color-blue-light)'
-                  : undefined,
-              }}
-            >
-              <Text fw={previewIndex === episode.index ? 700 : 400}>{episode.title}</Text>
-            </Paper>
-          ))}
-        </Stack>
-      </ScrollArea.Autosize>
+      <Stack gap={4} style={{ userSelect: 'none' }}>
+        {episodes.map((episode) => (
+          <Paper
+            key={episode.index}
+            withBorder
+            p="xs"
+            radius="sm"
+            onMouseDown={() => handleEpisodeMouseDown(episode.index)}
+            onMouseEnter={() => handleEpisodeMouseEnter(episode.index)}
+            style={{
+              cursor: 'pointer',
+              backgroundColor: checked.has(episode.index)
+                ? 'var(--mantine-color-blue-light)'
+                : undefined,
+            }}
+          >
+            <Text fw={previewIndex === episode.index ? 700 : 400}>{episode.title}</Text>
+          </Paper>
+        ))}
+      </Stack>
 
       {stepError && (
         <Alert color="red" icon={<IconAlertCircle size={16} />}>
