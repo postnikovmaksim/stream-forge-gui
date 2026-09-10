@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { registerAppSettingsIpcHandlers } from './appSettingsIpc'
 import { registerSourceConfigIpcHandlers } from './sourceConfigIpc'
 import { registerAnimeIpcHandlers } from './sources/ipc'
 
@@ -44,6 +45,7 @@ app.on('activate', () => {
   }
 })
 
+registerAppSettingsIpcHandlers()
 registerSourceConfigIpcHandlers()
 registerAnimeIpcHandlers()
 
