@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
+import { loadAppSettings } from '../appSettingsStore'
 import { loadSourcesConfig } from '../sourceConfigStore'
 import { withTimeout } from '../timeout'
 import { getEnabledPlugins, getPlugin } from './registry'
@@ -25,7 +26,11 @@ function resolveSource(sourceId: string): {
 
   return {
     plugin,
-    options: { baseUrl: sourceConfig.baseUrl, timeoutMs: sourceConfig.timeoutMs },
+    options: {
+      baseUrl: sourceConfig.baseUrl,
+      timeoutMs: sourceConfig.timeoutMs,
+      proxy: loadAppSettings().proxy,
+    },
   }
 }
 

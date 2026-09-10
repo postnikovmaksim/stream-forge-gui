@@ -4,10 +4,12 @@ import type {
   EpisodeSourceInfo,
   VideoQualityInfo,
 } from './animeTypes'
+import type { ProxySettings } from './appSettings'
 
 export interface SourceRequestOptions {
   baseUrl: string
   timeoutMs: number
+  proxy: ProxySettings
 }
 
 /**
