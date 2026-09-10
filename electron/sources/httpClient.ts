@@ -38,3 +38,24 @@ export async function fetchText(
   const response = await fetchWithTimeout(url, timeoutMs, init)
   return await response.text()
 }
+
+// Возвращает и тело, и финальный URL после редиректов — нужно там, где дальше
+// приходится резолвить относительные ссылки (например, сегменты HLS-плейлиста
+// заданы относительно адреса, на который сайт мог сделать 302-редирект).
+export async function fetchTextWithUrl(
+  url: string,
+  timeoutMs: number,
+  init?: RequestInit,
+): Promise<{ text: string; finalUrl: string }> {
+  const response = await fetchWithTimeout(url, timeoutMs, init)
+  return { text: await response.text(), finalUrl: response.url || url }
+}
+
+export async function fetchBuffer(
+  url: string,
+  timeoutMs: number,
+  init?: RequestInit,
+): Promise<Buffer> {
+  const response = await fetchWithTimeout(url, timeoutMs, init)
+  return Buffer.from(await response.arrayBuffer())
+}

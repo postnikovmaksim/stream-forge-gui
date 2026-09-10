@@ -11,9 +11,31 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import { IconAlertCircle, IconDownload } from '@tabler/icons-react'
+import { IconAlertCircle, IconDownload, IconGauge } from '@tabler/icons-react'
 import type { DownloadJobRequest } from '../shared/download'
 import type { EpisodeInfo, EpisodeSourceInfo, VideoQualityInfo } from '../shared/animeTypes'
+import type { VideoQualityEstimate } from '../shared/videoEstimate'
+
+type QualityEstimateState =
+  | { status: 'loading' }
+  | { status: 'done'; data: VideoQualityEstimate }
+  | { status: 'error'; message: string }
+
+function formatBytes(bytes: number): string {
+  const mb = bytes / (1024 * 1024)
+  if (mb >= 1024) return `${(mb / 1024).toFixed(2)} ГБ`
+  return `${mb.toFixed(0)} МБ`
+}
+
+function formatEstimate(data: VideoQualityEstimate): string {
+  const parts: string[] = []
+  if (data.fileSizeBytes !== null) parts.push(`≈${formatBytes(data.fileSizeBytes)}`)
+  if (data.videoBitrateKbps !== null) parts.push(`видео ${data.videoBitrateKbps} кбит/с`)
+  if (data.audioBitrateKbps !== null) parts.push(`аудио ${data.audioBitrateKbps} кбит/с`)
+  if (data.videoCodec) parts.push(data.videoCodec)
+  if (data.audioCodec) parts.push(data.audioCodec)
+  return parts.length > 0 ? parts.join(' · ') : 'Не удалось определить параметры'
+}
 
 function EpisodeBrowser({
   sourceId,
@@ -39,6 +61,7 @@ function EpisodeBrowser({
   const [qualities, setQualities] = useState<VideoQualityInfo[]>([])
   const [selectedQuality, setSelectedQuality] = useState<string | null>(null)
   const [stepError, setStepError] = useState('')
+  const [estimates, setEstimates] = useState<Record<string, QualityEstimateState>>({})
 
   useEffect(() => {
     window.animedl.anime.getEpisodes(sourceId, animeId).then(
@@ -125,12 +148,29 @@ function EpisodeBrowser({
     setSourceIndex(index)
     setQualities([])
     setSelectedQuality(null)
+    setEstimates({})
     setStepError('')
 
     window.animedl.anime.getQualities(sourceId, animeId, previewIndex, index).then(
       (loaded) => setQualities(loaded),
       (error: Error) => setStepError(error.message),
     )
+  }
+
+  async function handleEstimateQuality(quality: VideoQualityInfo) {
+    setEstimates((prev) => ({ ...prev, [quality.quality]: { status: 'loading' } }))
+    try {
+      const data = await window.animedl.ffprobe.estimate(quality)
+      setEstimates((prev) => ({ ...prev, [quality.quality]: { status: 'done', data } }))
+    } catch (error) {
+      setEstimates((prev) => ({
+        ...prev,
+        [quality.quality]: {
+          status: 'error',
+          message: error instanceof Error ? error.message : String(error),
+        },
+      }))
+    }
   }
 
   async function handleDownload() {
@@ -260,13 +300,37 @@ function EpisodeBrowser({
             value={selectedQuality}
             onChange={(value) => typeof value === 'string' && setSelectedQuality(value)}
           >
-            <Group gap="xs">
-              {qualities.map((quality) => (
-                <Chip key={quality.quality} value={quality.quality}>
-                  {quality.quality}p ({quality.type})
-                </Chip>
-              ))}
-            </Group>
+            <Stack gap="xs">
+              {qualities.map((quality) => {
+                const estimate = estimates[quality.quality]
+                return (
+                  <Group key={quality.quality} gap="xs" wrap="wrap">
+                    <Chip value={quality.quality}>
+                      {quality.quality}p ({quality.type})
+                    </Chip>
+                    <Button
+                      size="xs"
+                      variant="subtle"
+                      leftSection={<IconGauge size={14} />}
+                      loading={estimate?.status === 'loading'}
+                      onClick={() => handleEstimateQuality(quality)}
+                    >
+                      Оценить качество
+                    </Button>
+                    {estimate?.status === 'done' && (
+                      <Text size="xs" c="dimmed">
+                        {formatEstimate(estimate.data)}
+                      </Text>
+                    )}
+                    {estimate?.status === 'error' && (
+                      <Text size="xs" c="red">
+                        {estimate.message}
+                      </Text>
+                    )}
+                  </Group>
+                )
+              })}
+            </Stack>
           </Chip.Group>
         </Stack>
       )}

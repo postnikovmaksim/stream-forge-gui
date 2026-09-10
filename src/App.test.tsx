@@ -26,6 +26,7 @@ function installAnimedlMock() {
     },
     dialog: { chooseDirectory: vi.fn() },
     ytdlp: { ensure: vi.fn() },
+    ffprobe: { estimate: vi.fn() },
     download: {
       start: startMock,
       kill: vi.fn(),

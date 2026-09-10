@@ -3,6 +3,7 @@ import type { AppSettings } from '../shared/appSettings'
 import type { DownloadEvent, DownloadJobRequest } from '../shared/download'
 import type { SourceConfig } from '../shared/sourceConfig'
 import type { EnsureYtDlpResult } from '../shared/ytdlpStatus'
+import type { VideoQualityEstimate } from '../shared/videoEstimate'
 import type {
   AnimeSearchResult,
   EpisodeInfo,
@@ -24,6 +25,10 @@ contextBridge.exposeInMainWorld('animedl', {
   },
   ytdlp: {
     ensure: (): Promise<EnsureYtDlpResult> => ipcRenderer.invoke('ytdlp:ensure'),
+  },
+  ffprobe: {
+    estimate: (quality: VideoQualityInfo): Promise<VideoQualityEstimate> =>
+      ipcRenderer.invoke('ffprobe:estimate', quality),
   },
   download: {
     start: (request: DownloadJobRequest): Promise<string> =>

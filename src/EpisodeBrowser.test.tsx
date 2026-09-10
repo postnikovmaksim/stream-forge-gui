@@ -30,6 +30,7 @@ function installAnimeMock() {
     },
     dialog: { chooseDirectory: vi.fn() },
     ytdlp: { ensure: vi.fn() },
+    ffprobe: { estimate: vi.fn() },
     download: { start: vi.fn(), kill: vi.fn(), onEvent: vi.fn().mockReturnValue(() => {}) },
     sources: { get: vi.fn(), save: vi.fn() },
     anime: {
@@ -188,6 +189,55 @@ describe('EpisodeBrowser', () => {
     await waitFor(() =>
       expect(window.animedl.anime.getQualities).toHaveBeenCalledWith('anilibria', '1210', 0, 1),
     )
+  })
+
+  it('кнопка "Оценить качество" запрашивает и показывает параметры видео', async () => {
+    window.animedl.ffprobe.estimate = vi.fn().mockResolvedValue({
+      fileSizeBytes: 300 * 1024 * 1024,
+      durationSeconds: 1420,
+      videoBitrateKbps: 1600,
+      audioBitrateKbps: 128,
+      videoCodec: 'h264',
+      audioCodec: 'aac',
+      width: 1280,
+      height: 720,
+    })
+
+    renderEpisodeBrowser()
+
+    const episode1 = await screen.findByText('Серия 1')
+    fireEvent.mouseDown(episode1)
+    fireEvent.mouseUp(episode1)
+    fireEvent.click(await screen.findByText('AniLibria'))
+
+    const estimateButton = await screen.findByText('Оценить качество')
+    fireEvent.click(estimateButton)
+
+    expect(window.animedl.ffprobe.estimate).toHaveBeenCalledWith({
+      quality: '480',
+      type: 'm3u8',
+      url: 'https://example.com/480.m3u8',
+    })
+
+    await screen.findByText(/видео 1600 кбит\/с/)
+    expect(screen.getByText(/аудио 128 кбит\/с/)).toBeInTheDocument()
+    expect(screen.getByText(/h264/)).toBeInTheDocument()
+    expect(screen.getByText(/aac/)).toBeInTheDocument()
+  })
+
+  it('ошибку оценки качества показывает отдельным текстом', async () => {
+    window.animedl.ffprobe.estimate = vi.fn().mockRejectedValue(new Error('ffprobe не найден'))
+
+    renderEpisodeBrowser()
+
+    const episode1 = await screen.findByText('Серия 1')
+    fireEvent.mouseDown(episode1)
+    fireEvent.mouseUp(episode1)
+    fireEvent.click(await screen.findByText('AniLibria'))
+
+    fireEvent.click(await screen.findByText('Оценить качество'))
+
+    await screen.findByText('ffprobe не найден')
   })
 
   it('скачивание отправляет запрос для каждой выбранной серии с выбранным качеством', async () => {
