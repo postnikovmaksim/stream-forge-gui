@@ -1,4 +1,10 @@
 import type { SourceConfig } from '../shared/sourceConfig'
+import type {
+  AnimeSearchResult,
+  EpisodeInfo,
+  EpisodeSourceInfo,
+  VideoQualityInfo,
+} from '../shared/animeTypes'
 
 export {}
 
@@ -8,6 +14,28 @@ declare global {
       sources: {
         get: () => Promise<SourceConfig[]>
         save: (sources: SourceConfig[]) => Promise<SourceConfig[]>
+      }
+      anime: {
+        listEnabledSources: () => Promise<{ id: string; name: string }[]>
+        search: (sourceId: string, query: string) => Promise<AnimeSearchResult[]>
+        getEpisodes: (sourceId: string, animeId: string) => Promise<EpisodeInfo[]>
+        getSources: (
+          sourceId: string,
+          animeId: string,
+          episodeIndex: number,
+        ) => Promise<EpisodeSourceInfo[]>
+        getQualities: (
+          sourceId: string,
+          animeId: string,
+          episodeIndex: number,
+          sourceIndex: number,
+        ) => Promise<VideoQualityInfo[]>
+        getVideoUrls: (
+          sourceId: string,
+          animeId: string,
+          episodeIndexes: number[],
+          sourceIndex: number,
+        ) => Promise<VideoQualityInfo[][]>
       }
     }
   }
