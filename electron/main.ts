@@ -1,8 +1,8 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { SourceConfig } from '../shared/sourceConfig'
-import { loadSourcesConfig, saveSourcesConfig } from './sourceConfigStore'
+import { registerSourceConfigIpcHandlers } from './sourceConfigIpc'
+import { registerAnimeIpcHandlers } from './sources/ipc'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -44,11 +44,7 @@ app.on('activate', () => {
   }
 })
 
-ipcMain.handle('sources:get', () => loadSourcesConfig())
-
-ipcMain.handle('sources:save', (_event, sources: SourceConfig[]) => {
-  saveSourcesConfig(sources)
-  return sources
-})
+registerSourceConfigIpcHandlers()
+registerAnimeIpcHandlers()
 
 app.whenReady().then(createWindow)
