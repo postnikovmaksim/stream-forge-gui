@@ -3,9 +3,9 @@ import type {
   EpisodeInfo,
   EpisodeSourceInfo,
   VideoQualityInfo,
-} from '../../shared/animeTypes'
-import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
-import { fetchJson } from './httpClient'
+} from '../../../shared/animeTypes'
+import type { AnimeSourcePlugin, SourceRequestOptions } from '../../../shared/sourcePlugin'
+import { fetchJson } from '../httpClient'
 
 // API описан здесь: https://anilibria.top/api/docs/v1
 // (домен сайта — anilibria.top, сам API отдаётся с aniliberty.top; оба варианта

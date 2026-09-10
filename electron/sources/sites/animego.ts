@@ -3,11 +3,11 @@ import type {
   EpisodeInfo,
   EpisodeSourceInfo,
   VideoQualityInfo,
-} from '../../shared/animeTypes'
-import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
-import { fetchJson, fetchText } from './httpClient'
-import { extractAniboomVideos, isAniboomUrl } from './players/aniboom'
-import { extractKodikVideos, isKodikUrl } from './players/kodik'
+} from '../../../shared/animeTypes'
+import type { AnimeSourcePlugin, SourceRequestOptions } from '../../../shared/sourcePlugin'
+import { fetchJson, fetchText } from '../httpClient'
+import { extractAniboomVideos, isAniboomUrl } from '../players/aniboom'
+import { extractKodikVideos, isKodikUrl } from '../players/kodik'
 
 // animego.me — агрегатор: сам не хранит видео, а собирает ссылки на сторонние
 // встраиваемые плееры (Kodik, AniBoom, свой cdn-iframe) по каждой озвучке.

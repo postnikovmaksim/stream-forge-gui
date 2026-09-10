@@ -1,11 +1,11 @@
 import type { AnimeSourcePlugin } from '../../shared/sourcePlugin'
 import type { SourceConfig } from '../../shared/sourceConfig'
 import { DEFAULT_SOURCES } from '../../shared/sourceConfig'
-import { anilibriaPlugin } from './anilibria'
-import { animegoPlugin } from './animego'
-import { dreamcastPlugin } from './dreamcast'
-import { shizaProjectPlugin } from './shizaProject'
-import { yummyAnimePlugin } from './yummyAnime'
+import { anilibriaPlugin } from './sites/anilibria'
+import { animegoPlugin } from './sites/animego'
+import { dreamcastPlugin } from './sites/dreamcast'
+import { shizaProjectPlugin } from './sites/shizaProject'
+import { yummyAnimePlugin } from './sites/yummyAnime'
 
 function notImplementedPlugin(id: string, name: string): AnimeSourcePlugin {
   const message = `Источник "${name}" ещё не реализован в новой версии`

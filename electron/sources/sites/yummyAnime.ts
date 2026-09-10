@@ -3,11 +3,11 @@ import type {
   EpisodeInfo,
   EpisodeSourceInfo,
   VideoQualityInfo,
-} from '../../shared/animeTypes'
-import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
-import { fetchJson } from './httpClient'
-import { extractKodikVideos, isKodikUrl } from './players/kodik'
-import { extractSibnetVideos, isSibnetUrl } from './players/sibnet'
+} from '../../../shared/animeTypes'
+import type { AnimeSourcePlugin, SourceRequestOptions } from '../../../shared/sourcePlugin'
+import { fetchJson } from '../httpClient'
+import { extractKodikVideos, isKodikUrl } from '../players/kodik'
+import { extractSibnetVideos, isSibnetUrl } from '../players/sibnet'
 
 // site.yummyani.me — реальный API живёт на отдельном домене api.yani.tv
 // (нашлось только по разбору исходников anicli_api, на самом сайте нигде не

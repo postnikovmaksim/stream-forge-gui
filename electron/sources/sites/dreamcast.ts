@@ -3,10 +3,10 @@ import type {
   EpisodeInfo,
   EpisodeSourceInfo,
   VideoQualityInfo,
-} from '../../shared/animeTypes'
-import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
-import { fetchJson, fetchText } from './httpClient'
-import { extractPlaylist, type DreamcastPlaylist } from './players/dreamcastChipers'
+} from '../../../shared/animeTypes'
+import type { AnimeSourcePlugin, SourceRequestOptions } from '../../../shared/sourcePlugin'
+import { fetchJson, fetchText } from '../httpClient'
+import { extractPlaylist, type DreamcastPlaylist } from '../players/dreamcastChipers'
 
 // dreamerscast.com — сайт со своим собственным (не сторонним) плеером: нет
 // выбора озвучки или отдельных плееров, один эпизод = один adaptive-манифест

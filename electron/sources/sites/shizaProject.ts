@@ -3,12 +3,12 @@ import type {
   EpisodeInfo,
   EpisodeSourceInfo,
   VideoQualityInfo,
-} from '../../shared/animeTypes'
-import type { AnimeSourcePlugin, SourceRequestOptions } from '../../shared/sourcePlugin'
-import { fetchJson } from './httpClient'
-import { extractAniboomVideos, isAniboomUrl } from './players/aniboom'
-import { extractKodikVideos, isKodikUrl } from './players/kodik'
-import { extractSibnetVideos, isSibnetUrl } from './players/sibnet'
+} from '../../../shared/animeTypes'
+import type { AnimeSourcePlugin, SourceRequestOptions } from '../../../shared/sourcePlugin'
+import { fetchJson } from '../httpClient'
+import { extractAniboomVideos, isAniboomUrl } from '../players/aniboom'
+import { extractKodikVideos, isKodikUrl } from '../players/kodik'
+import { extractSibnetVideos, isSibnetUrl } from '../players/sibnet'
 
 // shiza-project.com — Nuxt-сайт с GraphQL API (чтение без авторизации).
 // Introspection на проде выключен, но SSR встраивает в HTML полный дамп
