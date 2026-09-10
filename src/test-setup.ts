@@ -1,4 +1,14 @@
 import '@testing-library/jest-dom/vitest'
+import { afterEach } from 'vitest'
+import { cleanup } from '@testing-library/react'
+
+// Мы не включаем test.globals в vitest.config.ts, поэтому встроенная
+// автоочистка Testing Library (которая опирается на глобальный afterEach)
+// не срабатывает сама — регистрируем её явно, иначе DOM от предыдущих
+// тестов в файле накапливается и ломает запросы вида getByText.
+afterEach(() => {
+  cleanup()
+})
 
 // jsdom не реализует ResizeObserver; используется в Mantine ScrollArea.
 class ResizeObserverStub {
