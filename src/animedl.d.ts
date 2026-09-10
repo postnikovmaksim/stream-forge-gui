@@ -1,3 +1,4 @@
+import type { AppSettings } from '../shared/appSettings'
 import type { SourceConfig } from '../shared/sourceConfig'
 import type {
   AnimeSearchResult,
@@ -11,6 +12,14 @@ export {}
 declare global {
   interface Window {
     animedl: {
+      appSettings: {
+        get: () => Promise<AppSettings>
+        save: (settings: AppSettings) => Promise<AppSettings>
+        getDefaultDownloadPath: () => Promise<string>
+      }
+      dialog: {
+        chooseDirectory: () => Promise<string | null>
+      }
       sources: {
         get: () => Promise<SourceConfig[]>
         save: (sources: SourceConfig[]) => Promise<SourceConfig[]>

@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import type { AppSettings } from '../shared/appSettings'
 import type { SourceConfig } from '../shared/sourceConfig'
 import type {
   AnimeSearchResult,
@@ -8,6 +9,17 @@ import type {
 } from '../shared/animeTypes'
 
 contextBridge.exposeInMainWorld('animedl', {
+  appSettings: {
+    get: (): Promise<AppSettings> => ipcRenderer.invoke('app-settings:get'),
+    save: (settings: AppSettings): Promise<AppSettings> =>
+      ipcRenderer.invoke('app-settings:save', settings),
+    getDefaultDownloadPath: (): Promise<string> =>
+      ipcRenderer.invoke('app-settings:default-download-path'),
+  },
+  dialog: {
+    chooseDirectory: (): Promise<string | null> =>
+      ipcRenderer.invoke('dialog:choose-directory'),
+  },
   sources: {
     get: (): Promise<SourceConfig[]> => ipcRenderer.invoke('sources:get'),
     save: (sources: SourceConfig[]): Promise<SourceConfig[]> =>
