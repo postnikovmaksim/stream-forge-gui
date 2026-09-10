@@ -7,6 +7,10 @@ export interface SourceConfig {
 }
 
 export const DEFAULT_SOURCES: SourceConfig[] = [
+  // У astar.bz таймаут больше остальных: первый запрос "прогревает" скрытое
+  // окно и проходит Cloudflare-проверку (до ~20 сек сама по себе), это
+  // помимо времени на сетевые запросы.
+  { id: 'astar', name: 'AStar', enabled: true, baseUrl: '', timeoutMs: 40000 },
   { id: 'anilibria', name: 'AniLibria', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'animego', name: 'AnimeGo', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'animevost', name: 'AnimeVost', enabled: true, baseUrl: '', timeoutMs: 20000 },
