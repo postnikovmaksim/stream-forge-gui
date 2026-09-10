@@ -116,6 +116,37 @@ describe('EpisodeBrowser', () => {
     expect(screen.getByText(/Скачать выбранные \(1\)/)).toBeInTheDocument()
   })
 
+  it('несколько озвучек: сначала выбор озвучки (по алфавиту), потом плеера под неё', async () => {
+    window.animedl.anime.getSources = vi.fn().mockResolvedValue([
+      { index: 0, title: 'Zeta Dub', domain: 'kodikplayer.com' },
+      { index: 1, title: 'Alpha Dub', domain: 'kodikplayer.com' },
+      { index: 2, title: 'Alpha Dub', domain: 'aniboom.one' },
+    ])
+
+    renderEpisodeBrowser()
+
+    const episode1 = await screen.findByText('Серия 1')
+    fireEvent.mouseDown(episode1)
+    fireEvent.mouseUp(episode1)
+
+    // озвучки идут по алфавиту, шага "плеер" пока нет
+    const dubbingAlpha = await screen.findByText('Alpha Dub')
+    await screen.findByText('Zeta Dub')
+    expect(screen.queryByText('kodikplayer.com')).not.toBeInTheDocument()
+    expect(screen.queryByText('aniboom.one')).not.toBeInTheDocument()
+
+    // после выбора озвучки с двумя плеерами появляется отдельный шаг выбора плеера
+    fireEvent.click(dubbingAlpha)
+    const playerKodik = await screen.findByText('kodikplayer.com')
+    await screen.findByText('aniboom.one')
+    expect(window.animedl.anime.getQualities).not.toHaveBeenCalled()
+
+    fireEvent.click(playerKodik)
+    await waitFor(() =>
+      expect(window.animedl.anime.getQualities).toHaveBeenCalledWith('anilibria', '1210', 0, 1),
+    )
+  })
+
   it('скачивание отправляет запрос для каждой выбранной серии с выбранным качеством', async () => {
     const onStartDownload = renderEpisodeBrowser()
 

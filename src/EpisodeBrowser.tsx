@@ -1,5 +1,16 @@
 import { useEffect, useState } from 'react'
-import { Alert, Button, Chip, Group, Loader, Paper, Stack, Text, Title } from '@mantine/core'
+import {
+  Alert,
+  Button,
+  Chip,
+  Group,
+  Loader,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
 import { IconAlertCircle, IconDownload } from '@tabler/icons-react'
 import type { DownloadJobRequest } from '../shared/download'
 import type { EpisodeInfo, EpisodeSourceInfo, VideoQualityInfo } from '../shared/animeTypes'
@@ -22,6 +33,7 @@ function EpisodeBrowser({
 
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const [sources, setSources] = useState<EpisodeSourceInfo[]>([])
+  const [selectedDubbing, setSelectedDubbing] = useState<string | null>(null)
   const [sourceIndex, setSourceIndex] = useState<number | null>(null)
   const [qualities, setQualities] = useState<VideoQualityInfo[]>([])
   const [selectedQuality, setSelectedQuality] = useState<string | null>(null)
@@ -70,6 +82,7 @@ function EpisodeBrowser({
   function handlePreview(index: number) {
     setPreviewIndex(index)
     setSources([])
+    setSelectedDubbing(null)
     setSourceIndex(null)
     setQualities([])
     setSelectedQuality(null)
@@ -79,6 +92,21 @@ function EpisodeBrowser({
       (loaded) => setSources(loaded),
       (error: Error) => setStepError(error.message),
     )
+  }
+
+  function handleSelectDubbing(dubbing: string) {
+    setSelectedDubbing(dubbing)
+    setSourceIndex(null)
+    setQualities([])
+    setSelectedQuality(null)
+    setStepError('')
+
+    // Если под эту озвучку есть только один плеер — нет смысла заставлять
+    // выбирать его отдельным шагом, выбираем сразу.
+    const matches = sources.filter((source) => source.title === dubbing)
+    if (matches.length === 1) {
+      handleSelectSource(matches[0].index)
+    }
   }
 
   function handleSelectSource(index: number) {
@@ -123,6 +151,11 @@ function EpisodeBrowser({
     })
   }
 
+  const dubbingNames = Array.from(new Set(sources.map((source) => source.title))).sort((a, b) =>
+    a.localeCompare(b, 'ru'),
+  )
+  const playersForDubbing = sources.filter((source) => source.title === selectedDubbing)
+
   return (
     <Stack>
       <Title order={3}>{animeTitle}</Title>
@@ -162,20 +195,39 @@ function EpisodeBrowser({
         </Alert>
       )}
 
-      {previewIndex !== null && (
+      {previewIndex !== null && sources.length > 0 && (
         <Stack gap={4}>
           <Text size="sm" fw={500}>
-            Источник/озвучка
+            Озвучка
+          </Text>
+          <Chip.Group
+            value={selectedDubbing}
+            onChange={(value) => typeof value === 'string' && handleSelectDubbing(value)}
+          >
+            <SimpleGrid cols={3} spacing="xs">
+              {dubbingNames.map((name) => (
+                <Chip key={name} value={name}>
+                  {name}
+                </Chip>
+              ))}
+            </SimpleGrid>
+          </Chip.Group>
+        </Stack>
+      )}
+
+      {selectedDubbing !== null && playersForDubbing.length > 1 && (
+        <Stack gap={4}>
+          <Text size="sm" fw={500}>
+            Плеер
           </Text>
           <Chip.Group
             value={sourceIndex !== null ? String(sourceIndex) : null}
             onChange={(value) => typeof value === 'string' && handleSelectSource(Number(value))}
           >
             <Group gap="xs">
-              {sources.map((source) => (
+              {playersForDubbing.map((source) => (
                 <Chip key={source.index} value={String(source.index)}>
-                  {source.title}
-                  {source.domain ? ` [плеер] ${source.domain}` : ''}
+                  {source.domain || source.title}
                 </Chip>
               ))}
             </Group>
