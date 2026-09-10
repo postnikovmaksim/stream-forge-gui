@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type { AppSettings } from '../shared/appSettings'
 import type { SourceConfig } from '../shared/sourceConfig'
+import type { EnsureYtDlpResult } from '../shared/ytdlpStatus'
 import type {
   AnimeSearchResult,
   EpisodeInfo,
@@ -19,6 +20,9 @@ contextBridge.exposeInMainWorld('animedl', {
   dialog: {
     chooseDirectory: (): Promise<string | null> =>
       ipcRenderer.invoke('dialog:choose-directory'),
+  },
+  ytdlp: {
+    ensure: (): Promise<EnsureYtDlpResult> => ipcRenderer.invoke('ytdlp:ensure'),
   },
   sources: {
     get: (): Promise<SourceConfig[]> => ipcRenderer.invoke('sources:get'),

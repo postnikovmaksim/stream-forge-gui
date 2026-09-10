@@ -1,11 +1,7 @@
 import fs from 'node:fs'
+import type { EnsureYtDlpResult } from '../../shared/ytdlpStatus'
 import { downloadFile } from './download'
 import { getYtDlpDir, getYtDlpDownloadUrl, getYtDlpPath } from './paths'
-
-export interface EnsureYtDlpResult {
-  path: string
-  downloaded: boolean
-}
 
 export async function ensureYtDlp(): Promise<EnsureYtDlpResult> {
   const ytDlpPath = getYtDlpPath()

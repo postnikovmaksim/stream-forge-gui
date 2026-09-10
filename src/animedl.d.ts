@@ -1,5 +1,6 @@
 import type { AppSettings } from '../shared/appSettings'
 import type { SourceConfig } from '../shared/sourceConfig'
+import type { EnsureYtDlpResult } from '../shared/ytdlpStatus'
 import type {
   AnimeSearchResult,
   EpisodeInfo,
@@ -19,6 +20,9 @@ declare global {
       }
       dialog: {
         chooseDirectory: () => Promise<string | null>
+      }
+      ytdlp: {
+        ensure: () => Promise<EnsureYtDlpResult>
       }
       sources: {
         get: () => Promise<SourceConfig[]>

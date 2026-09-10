@@ -5,6 +5,8 @@ import { registerAppSettingsIpcHandlers } from './appSettingsIpc'
 import { registerDialogIpcHandlers } from './dialogIpc'
 import { registerSourceConfigIpcHandlers } from './sourceConfigIpc'
 import { registerAnimeIpcHandlers } from './sources/ipc'
+import { ensureYtDlp } from './ytdlp/ensure'
+import { registerYtDlpIpcHandlers } from './ytdlp/ipc'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -50,5 +52,11 @@ registerAppSettingsIpcHandlers()
 registerDialogIpcHandlers()
 registerSourceConfigIpcHandlers()
 registerAnimeIpcHandlers()
+registerYtDlpIpcHandlers()
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  ensureYtDlp().catch((error: unknown) => {
+    console.error('Не удалось подготовить yt-dlp:', error)
+  })
+})
