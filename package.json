@@ -5,7 +5,10 @@
   "description": "Поиск и скачивание видео с настраиваемых потоковых источников (сейчас — в основном аниме)",
   "type": "module",
   "main": "dist-electron/main.js",
-  "author": "postnikovmaksim",
+  "author": {
+    "name": "postnikovmaksim",
+    "email": "postnikovmaksim@gmail.com"
+  },
   "license": "GPL-3.0",
   "scripts": {
     "dev": "vite",
@@ -72,7 +75,10 @@
     },
     "linux": {
       "target": ["AppImage", "deb"],
-      "category": "Utility"
+      "category": "Utility",
+      "desktopName": "streamforge.desktop",
+      "synopsis": "Поиск и скачивание видео с настраиваемых потоковых источников",
+      "syncDesktopName": true
     }
   }
 }
