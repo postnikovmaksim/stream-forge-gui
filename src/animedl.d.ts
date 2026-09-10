@@ -1,4 +1,5 @@
 import type { AppSettings } from '../shared/appSettings'
+import type { DownloadEvent, DownloadJobRequest } from '../shared/download'
 import type { SourceConfig } from '../shared/sourceConfig'
 import type { EnsureYtDlpResult } from '../shared/ytdlpStatus'
 import type {
@@ -23,6 +24,11 @@ declare global {
       }
       ytdlp: {
         ensure: () => Promise<EnsureYtDlpResult>
+      }
+      download: {
+        start: (request: DownloadJobRequest) => Promise<string>
+        kill: (jobId: string) => Promise<void>
+        onEvent: (callback: (event: DownloadEvent) => void) => () => void
       }
       sources: {
         get: () => Promise<SourceConfig[]>

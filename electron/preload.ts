@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type { AppSettings } from '../shared/appSettings'
+import type { DownloadEvent, DownloadJobRequest } from '../shared/download'
 import type { SourceConfig } from '../shared/sourceConfig'
 import type { EnsureYtDlpResult } from '../shared/ytdlpStatus'
 import type {
@@ -23,6 +24,16 @@ contextBridge.exposeInMainWorld('animedl', {
   },
   ytdlp: {
     ensure: (): Promise<EnsureYtDlpResult> => ipcRenderer.invoke('ytdlp:ensure'),
+  },
+  download: {
+    start: (request: DownloadJobRequest): Promise<string> =>
+      ipcRenderer.invoke('download:start', request),
+    kill: (jobId: string): Promise<void> => ipcRenderer.invoke('download:kill', jobId),
+    onEvent: (callback: (event: DownloadEvent) => void): (() => void) => {
+      const listener = (_event: unknown, payload: DownloadEvent) => callback(payload)
+      ipcRenderer.on('download:event', listener)
+      return () => ipcRenderer.removeListener('download:event', listener)
+    },
   },
   sources: {
     get: (): Promise<SourceConfig[]> => ipcRenderer.invoke('sources:get'),

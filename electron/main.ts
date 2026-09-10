@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { registerAppSettingsIpcHandlers } from './appSettingsIpc'
 import { registerDialogIpcHandlers } from './dialogIpc'
+import { registerDownloadIpcHandlers } from './download/ipc'
 import { registerSourceConfigIpcHandlers } from './sourceConfigIpc'
 import { registerAnimeIpcHandlers } from './sources/ipc'
 import { ensureYtDlp } from './ytdlp/ensure'
@@ -53,6 +54,7 @@ registerDialogIpcHandlers()
 registerSourceConfigIpcHandlers()
 registerAnimeIpcHandlers()
 registerYtDlpIpcHandlers()
+registerDownloadIpcHandlers(() => win?.webContents ?? null)
 
 app.whenReady().then(() => {
   createWindow()
