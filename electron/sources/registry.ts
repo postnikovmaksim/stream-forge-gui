@@ -4,6 +4,7 @@ import { DEFAULT_SOURCES } from '../../shared/sourceConfig'
 import { anilibriaPlugin } from './anilibria'
 import { animegoPlugin } from './animego'
 import { dreamcastPlugin } from './dreamcast'
+import { shizaProjectPlugin } from './shizaProject'
 import { yummyAnimePlugin } from './yummyAnime'
 
 function notImplementedPlugin(id: string, name: string): AnimeSourcePlugin {
@@ -34,6 +35,7 @@ const implementedPlugins: Record<string, AnimeSourcePlugin> = {
   anilibria: anilibriaPlugin,
   animego: animegoPlugin,
   dreamcast: dreamcastPlugin,
+  shiza_project: shizaProjectPlugin,
   yummy_anime: yummyAnimePlugin,
 }
 

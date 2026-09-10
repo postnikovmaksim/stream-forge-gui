@@ -12,5 +12,6 @@ export const DEFAULT_SOURCES: SourceConfig[] = [
   { id: 'animevost', name: 'AnimeVost', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'dreamcast', name: 'DreamCast', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'sameband', name: 'SameBand', enabled: true, baseUrl: '', timeoutMs: 20000 },
+  { id: 'shiza_project', name: 'SHIZA-Project', enabled: true, baseUrl: '', timeoutMs: 20000 },
   { id: 'yummy_anime', name: 'Yummy Anime', enabled: true, baseUrl: '', timeoutMs: 20000 },
 ]

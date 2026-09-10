@@ -21,8 +21,11 @@ import { fetchJson, fetchText } from '../httpClient'
 // Тот же критерий, что использует сам anicli_api (URL_RULE в kodik.py) —
 // по структуре пути, а не по конкретному домену: у Kodik много доменов-зеркал,
 // но путь /serial|season|video|film/<id>/<hash>/<quality>p всегда одинаковый.
+// "uv" добавлен сверх anicli_api — найден вживую на shiza-project.com
+// (kodikplayer.com/uv/<id>/<hash>/720p, страница с той же структурой
+// vInfo.type/hash/id, что и остальные — просто другое значение vInfo.type).
 const KODIK_URL_PATTERN =
-  /^https:\/\/(www\.)?[\w-]{5,32}\.\w{2,6}\/(?:serial?|season|video|film)\/\d+\/\w+\/\d{3,4}p/
+  /^https:\/\/(www\.)?[\w-]{5,32}\.\w{2,6}\/(?:serial?|season|video|film|uv)\/\d+\/\w+\/\d{3,4}p/
 
 interface KodikPagePayload {
   d: string
