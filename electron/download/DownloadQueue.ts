@@ -49,6 +49,12 @@ export class DownloadQueue {
       args.push('--merge-output-format', 'mp4')
     }
 
+    if (request.headers) {
+      for (const [key, value] of Object.entries(request.headers)) {
+        args.push('--add-header', `${key}:${value}`)
+      }
+    }
+
     args.push('-o', request.outputTemplate, request.url)
 
     const child = spawn(getYtDlpPath(), args)

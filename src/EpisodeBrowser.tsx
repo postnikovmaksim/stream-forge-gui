@@ -118,6 +118,7 @@ function EpisodeBrowser({
         url: match.url,
         outputTemplate,
         isM3u8: match.type === 'm3u8',
+        headers: match.headers,
       })
     })
   }

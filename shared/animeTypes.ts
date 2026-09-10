@@ -18,4 +18,8 @@ export interface VideoQualityInfo {
   quality: string
   type: string
   url: string
+  // Некоторым плеерам (AniBoom, SibNet) нужны конкретные заголовки
+  // (Referer/Origin/Accept-Language) не только чтобы получить ссылку, но и
+  // чтобы её потом скачать — без них yt-dlp получит 403.
+  headers?: Record<string, string>
 }

@@ -3,6 +3,7 @@ export interface DownloadJobRequest {
   url: string
   outputTemplate: string
   isM3u8: boolean
+  headers?: Record<string, string>
 }
 
 export interface DownloadLogEvent {
