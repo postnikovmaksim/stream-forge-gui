@@ -219,10 +219,8 @@ describe('EpisodeBrowser', () => {
       url: 'https://example.com/480.m3u8',
     })
 
-    await screen.findByText(/видео 1600 кбит\/с/)
-    expect(screen.getByText(/аудио 128 кбит\/с/)).toBeInTheDocument()
-    expect(screen.getByText(/h264/)).toBeInTheDocument()
-    expect(screen.getByText(/aac/)).toBeInTheDocument()
+    await screen.findByText(/h264 1600 кбит\/с/)
+    expect(screen.getByText(/aac 128 кбит\/с/)).toBeInTheDocument()
   })
 
   it('ошибку оценки качества показывает отдельным текстом', async () => {

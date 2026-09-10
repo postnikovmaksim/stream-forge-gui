@@ -27,13 +27,23 @@ function formatBytes(bytes: number): string {
   return `${mb.toFixed(0)} МБ`
 }
 
+function formatTrack(codec: string | null, bitrateKbps: number | null): string | null {
+  const label = [codec, bitrateKbps !== null ? `${bitrateKbps} кбит/с` : null]
+    .filter(Boolean)
+    .join(' ')
+  return label || null
+}
+
 function formatEstimate(data: VideoQualityEstimate): string {
   const parts: string[] = []
   if (data.fileSizeBytes !== null) parts.push(`≈${formatBytes(data.fileSizeBytes)}`)
-  if (data.videoBitrateKbps !== null) parts.push(`видео ${data.videoBitrateKbps} кбит/с`)
-  if (data.audioBitrateKbps !== null) parts.push(`аудио ${data.audioBitrateKbps} кбит/с`)
-  if (data.videoCodec) parts.push(data.videoCodec)
-  if (data.audioCodec) parts.push(data.audioCodec)
+
+  const video = formatTrack(data.videoCodec, data.videoBitrateKbps)
+  if (video) parts.push(video)
+
+  const audio = formatTrack(data.audioCodec, data.audioBitrateKbps)
+  if (audio) parts.push(audio)
+
   return parts.length > 0 ? parts.join(' · ') : 'Не удалось определить параметры'
 }
 
