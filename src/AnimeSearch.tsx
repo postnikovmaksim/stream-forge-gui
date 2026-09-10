@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react'
+import type { DownloadJobRequest } from '../shared/download'
 import type { AnimeSearchResult } from '../shared/animeTypes'
+import EpisodeBrowser from './EpisodeBrowser'
 
-function AnimeSearch() {
+function AnimeSearch({
+  onStartDownload,
+}: {
+  onStartDownload: (request: DownloadJobRequest) => void
+}) {
   const [sources, setSources] = useState<{ id: string; name: string }[]>([])
   const [sourceId, setSourceId] = useState('')
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<AnimeSearchResult[]>([])
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [selectedAnime, setSelectedAnime] = useState<AnimeSearchResult | null>(null)
 
   useEffect(() => {
     window.animedl.anime.listEnabledSources().then((loaded) => {
@@ -21,6 +28,7 @@ function AnimeSearch() {
 
     setStatus('loading')
     setErrorMessage('')
+    setSelectedAnime(null)
 
     try {
       const found = await window.animedl.anime.search(sourceId, query.trim())
@@ -35,6 +43,21 @@ function AnimeSearch() {
 
   if (sources.length === 0) {
     return <p>Нет включённых источников — включите хотя бы один во вкладке "Источники".</p>
+  }
+
+  if (selectedAnime) {
+    return (
+      <div>
+        <button onClick={() => setSelectedAnime(null)}>← Назад к поиску</button>
+        <EpisodeBrowser
+          key={selectedAnime.id}
+          sourceId={sourceId}
+          animeId={selectedAnime.id}
+          animeTitle={selectedAnime.title}
+          onStartDownload={onStartDownload}
+        />
+      </div>
+    )
   }
 
   return (
@@ -63,7 +86,9 @@ function AnimeSearch() {
 
       <ul>
         {results.map((result) => (
-          <li key={result.id}>{result.title}</li>
+          <li key={result.id}>
+            <button onClick={() => setSelectedAnime(result)}>{result.title}</button>
+          </li>
         ))}
       </ul>
     </div>
